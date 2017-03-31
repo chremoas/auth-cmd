@@ -7,8 +7,12 @@ before_install:
   - go get github.com/micro/micro
   - cd $GOPATH/src/github.com/micro/micro
   - git remote add abafork https://github.com/abaeve/micro
-  - git fetch abafork develop
-  - git checkout develop
+  - git fetch abafork fork
+  - git checkout fork
+  - cd $GOPATH/src/github.com/micro/go-bot
+  - git remote add abafork https://github.com/abaeve/go-bot
+  - git fetch abafork fork
+  - git checkout fork
   - cd $HOME/gopath/src/github.com/abaeve/auth-bot
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci -ignore=discord/discord.go,main.go

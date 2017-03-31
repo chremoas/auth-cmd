@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/micro/go-micro"
-	proto "github.com/micro/micro/bot/proto"
+	proto "github.com/micro/go-bot/proto"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
 	"github.com/abaeve/auth-bot/command"

@@ -2,7 +2,7 @@ package command
 
 import (
 	proto "github.com/abaeve/auth-srv/proto"
-	botprot "github.com/micro/micro/bot/proto"
+	botprot "github.com/micro/go-bot/proto"
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/micro/go-micro/client"
 	context "golang.org/x/net/context"
