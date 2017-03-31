@@ -1,7 +1,7 @@
 language: go
 sudo: false
 go:
-  - tip
+  - 1.8
 before_install:
   - go get github.com/mattn/goveralls
   - go get github.com/micro/micro
@@ -9,5 +9,6 @@ before_install:
   - git remote add abafork https://github.com/abaeve/micro
   - git fetch abafork develop
   - git checkout develop
+  - cd $HOME/gopath/src/github.com/abaeve/auth-bot
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci -ignore=discord/discord.go,main.go
