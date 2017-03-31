@@ -4,5 +4,10 @@ go:
   - tip
 before_install:
   - go get github.com/mattn/goveralls
+  - go get github.com/micro/micro
+  - cd $GOPATH/src/github.com/micro/micro
+  - git remote add abafork https://github.com/abaeve/micro
+  - git fetch abafork develop
+  - git checkout develop
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci -ignore=discord/discord.go,main.go
