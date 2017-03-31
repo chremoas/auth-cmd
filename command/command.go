@@ -52,7 +52,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 
 	if err != nil {
 		rsp.Error = "@" + sender[1] + " I had an issue talking to the chat service, please try again later."
-		return botError{"Received (" + err.Error() + ") from chat service."}
+		return botError{"Received (" + err.Error() + ") from the chat service."}
 	}
 
 	rsp.Result = []byte("@" + sender[1] + " *Success*: " + response.CharacterName + " has been successfully authed")

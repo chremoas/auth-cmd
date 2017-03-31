@@ -108,6 +108,7 @@ func TestBotExec(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	defer mockCtrl.Finish()
 
 	expectedCharName := "Test Char Name"
 
@@ -147,5 +148,154 @@ func TestBotExec(t *testing.T) {
 
 	if len(response.Error) != 0 {
 		t.Fatal("Bot set the error in the response when it shouldn't have")
+	}
+}
+
+func TestInvalidCommandExecution(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	defer mockCtrl.Finish()
+
+	gomock.InOrder(
+		mockAuthSvc.EXPECT().Confirm(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+		mockClient.EXPECT().UpdateMember(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+	)
+
+	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+
+	var response botprot.ExecResponse
+
+	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth"}}, &response)
+
+	if err == nil {
+		t.Fatal("Expected an error but received nil")
+	}
+
+	expectedResponseError := "@u123456 I did not understand your command."
+
+	if len(response.Error) == 0 || response.Error != expectedResponseError {
+		t.Fatalf("Response error: (%s) did not match expected: (%s)", response.Error, expectedResponseError)
+	}
+}
+
+func TestErrorFromAuthSvc(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	defer mockCtrl.Finish()
+
+	authError := "There was an issue over there ->"
+
+	gomock.InOrder(
+		mockAuthSvc.EXPECT().Confirm(
+			context.Background(),
+			&proto.AuthConfirmRequest{
+				UserId:             "u123456",
+				AuthenticationCode: "1234567890",
+			},
+			gomock.Any(),
+		).Return(
+			nil,
+			&botError{message: authError},
+		),
+		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}).Times(0),
+	)
+
+	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+
+	response := botprot.ExecResponse{}
+	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
+
+	if err == nil {
+		t.Fatal("Expected an error but received nil")
+	}
+
+	expectedAuthError := "Received an error from the auth service: " + authError
+
+	if err.Error() != expectedAuthError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", err.Error(), expectedAuthError)
+	}
+
+	expectedUserError := "@u123456 I had an issue authing your request, please reauth or contact your administrator."
+
+	if response.Error != expectedUserError {
+		t.Fatalf("User error: (%s) did not match expected: (%s)", response.Error, authError)
+	}
+}
+
+func TestErrorFromDiscord(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	defer mockCtrl.Finish()
+
+	discordError := "There was an issue over there ->"
+
+	gomock.InOrder(
+		mockAuthSvc.EXPECT().Confirm(
+			context.Background(),
+			&proto.AuthConfirmRequest{
+				UserId:             "u123456",
+				AuthenticationCode: "1234567890",
+			},
+			gomock.Any(),
+		).Return(
+			&proto.AuthConfirmResponse{
+				Success:       true,
+				Roles:         []string{"ROLE1", "ROLE2"},
+				CharacterName: "Test Char",
+			},
+			nil,
+		),
+		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}).Return(&botError{message: discordError}),
+	)
+
+	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+
+	response := botprot.ExecResponse{}
+	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
+
+	if err == nil {
+		t.Fatal("Expected an error but received nil")
+	}
+
+	expectedDiscordError := "Received (" + discordError + ") from the chat service."
+
+	if err.Error() != expectedDiscordError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", err.Error(), expectedDiscordError)
+	}
+
+	expectedUserError := "@u123456 I had an issue talking to the chat service, please try again later."
+
+	if response.Error != expectedUserError {
+		t.Fatalf("User error: (%s) did not match expected: (%s)", response.Error, discordError)
+	}
+}
+
+func TestHelp(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	defer mockCtrl.Finish()
+
+	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+
+	response := botprot.HelpResponse{}
+
+	err := cmd.Help(context.Background(), &botprot.HelpRequest{}, &response)
+
+	if err != nil {
+		t.Fatal("Received an error when none was expected")
+	}
+
+	expectedHelpString := "Authenticate your chat user id and link it to the character used to create the given token."
+
+	if response.Description != expectedHelpString {
+		t.Fatalf("Response description: (%s) does not match expected: (%s)", response.Description, expectedHelpString)
+	}
+
+	if response.Usage != "test" {
+		t.Fatalf("Response name: (%s) does not equal expected: (test)", response.Usage)
 	}
 }
