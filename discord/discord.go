@@ -7,6 +7,7 @@ import (
 
 type Client interface {
 	UpdateMember(guildID, userID string, roles []string) error
+	GetAllMembers(guildID, after string, limit int) ([]*discordgo.Member, error)
 }
 
 type client struct {
@@ -18,6 +19,12 @@ func (cl *client) UpdateMember(guildID, userID string, roles []string) error {
 	cl.mutex.Lock()
 	defer cl.mutex.Unlock()
 	return cl.session.GuildMemberEdit(guildID, userID, roles)
+}
+
+func (cl *client) GetAllMembers(guildID, after string, limit int) ([]*discordgo.Member, error) {
+	cl.mutex.Lock()
+	defer cl.mutex.Unlock()
+	return cl.session.GuildMembers(guildID, after, limit)
 }
 
 func NewClient(token string) (Client, error) {

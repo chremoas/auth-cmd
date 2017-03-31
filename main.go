@@ -8,11 +8,13 @@ import (
 	"gopkg.in/yaml.v2"
 	"github.com/abaeve/auth-bot/command"
 	"github.com/abaeve/auth-bot/discord"
+	"github.com/abaeve/auth-bot/background"
 )
 
 type Configuration struct {
 	Application struct {
 		BotToken        string `yaml:"botToken"`
+		GuildId         string
 		Namespace       string
 		Name            string
 		DiscordServerId string `yaml:"discordServerId"`
@@ -20,6 +22,7 @@ type Configuration struct {
 }
 
 var configuration Configuration
+var checker background.Checker
 
 func main() {
 	data, err := ioutil.ReadFile("application.yaml")
@@ -54,7 +57,18 @@ func main() {
 
 	service.Init()
 
-	proto.RegisterCommandHandler(service.Server(), &command.Command{Name: configuration.Application.Name, Client: chatClient})
+	authSvcName := configuration.Application.Namespace + ".auth-srv"
+	checker = background.NewChecker(chatClient, authSvcName, service.Client())
+	checker.Start()
+	proto.RegisterCommandHandler(service.Server(),
+		command.NewCommand(
+			configuration.Application.GuildId,
+			configuration.Application.Name,
+			authSvcName,
+			service.Client(),
+			chatClient,
+		),
+	)
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
