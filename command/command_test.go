@@ -168,9 +168,9 @@ func TestBotExec(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	if string(response.Result) != "@u123456 *Success*: "+expectedCharName+" has been successfully authed" {
+	if string(response.Result) != "<@u123456> *Success*: "+expectedCharName+" has been successfully authed" {
 		t.Fatalf("Result string, expected (%s) received (%s)",
-			"@u123456 *Success*: "+expectedCharName+" has been successfully authed",
+			"<@u123456> *Success*: "+expectedCharName+" has been successfully authed",
 			string(response.Result))
 	}
 
@@ -202,10 +202,10 @@ func TestInvalidCommandExecution(t *testing.T) {
 		t.Fatal("Expected an error but received nil")
 	}
 
-	expectedResponseError := "@u123456 I did not understand your command."
+	expectedResponseError := "<@u123456> I did not understand your command."
 
-	if len(response.Error) == 0 || response.Error != expectedResponseError {
-		t.Fatalf("Response error: (%s) did not match expected: (%s)", response.Error, expectedResponseError)
+	if len(response.Result) == 0 || string(response.Result) != expectedResponseError {
+		t.Fatalf("Response error: (%s) did not match expected: (%s)", string(response.Result), expectedResponseError)
 	}
 }
 
@@ -242,16 +242,16 @@ func TestErrorFromAuthSvc(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	expectedAuthError := "@u123456 I had an issue authing your request, please reauth or contact your administrator."
+	expectedAuthError := "<@u123456> I had an issue authing your request, please reauth or contact your administrator."
 
-	if response.Error != expectedAuthError {
-		t.Fatalf("Error text: (%s) did not match expected: (%s)", response.Error, expectedAuthError)
+	if string(response.Result) != expectedAuthError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", string(response.Result), expectedAuthError)
 	}
 
-	expectedUserError := "@u123456 I had an issue authing your request, please reauth or contact your administrator."
+	expectedUserError := "<@u123456> I had an issue authing your request, please reauth or contact your administrator."
 
-	if response.Error != expectedUserError {
-		t.Fatalf("User error: (%s) did not match expected: (%s)", response.Error, authError)
+	if string(response.Result) != expectedUserError {
+		t.Fatalf("User error: (%s) did not match expected: (%s)", string(response.Result), authError)
 	}
 }
 
@@ -292,16 +292,16 @@ func TestErrorFromDiscord(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	expectedDiscordError := "@u123456 I had an issue talking to the chat service, please try again later."
+	expectedDiscordError := "<@u123456> I had an issue talking to the chat service, please try again later."
 
-	if response.Error != expectedDiscordError {
-		t.Fatalf("Error text: (%s) did not match expected: (%s)", response.Error, expectedDiscordError)
+	if string(response.Result) != expectedDiscordError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", string(response.Result), expectedDiscordError)
 	}
 
-	expectedUserError := "@u123456 I had an issue talking to the chat service, please try again later."
+	expectedUserError := "<@u123456> I had an issue talking to the chat service, please try again later."
 
-	if response.Error != expectedUserError {
-		t.Fatalf("User error: (%s) did not match expected: (%s)", response.Error, discordError)
+	if string(response.Result) != expectedUserError {
+		t.Fatalf("User error: (%s) did not match expected: (%s)", string(response.Result), discordError)
 	}
 }
 
@@ -341,9 +341,9 @@ func TestNilRolesInResponse(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	if string(response.Error) != "@u123456 *Unsure Response*: You have 0 roles assigned" {
+	if string(response.Result) != "<@u123456> *Unsure Response*: You have 0 roles assigned" {
 		t.Fatalf("Result string, expected (%s) received (%s)",
-			"@u123456 *Unsure Response*: You have 0 roles assigned",
+			"<@u123456> *Unsure Response*: You have 0 roles assigned",
 			string(response.Result))
 	}
 }
@@ -383,9 +383,9 @@ func TestNilCharacterInResponse(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	if string(response.Error) != "@u123456 *Unsure Response*: You have no character" {
+	if string(response.Result) != "<@u123456> *Unsure Response*: You have no character" {
 		t.Fatalf("Result string, expected (%s) received (%s)",
-			"@u123456 *Unsure Response*: You have no character",
+			"<@u123456> *Unsure Response*: You have no character",
 			string(response.Result))
 	}
 }

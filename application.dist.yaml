@@ -1,6 +1,5 @@
 application:
   botToken: You bot token here, do not prepend Bot... we'll do that for you
-  guildId: 123456
   namespace: the namespace where you micro bot is at
   authSrvNamespace: namespace that the auth-srv instance lives in
   name: the name of the command of this bot

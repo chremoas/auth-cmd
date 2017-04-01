@@ -40,7 +40,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	sender := strings.Split(req.Sender, ":")
 
 	if len(req.Args) != 2 {
-		rsp.Error = "@" + sender[1] + " I did not understand your command."
+		rsp.Result = []byte("<@" + sender[1] + "> I did not understand your command.")
 		return botError{"Could not understand command"}
 	}
 
@@ -49,28 +49,28 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	response, err := client.Confirm(ctx, &uauthsvc.AuthConfirmRequest{UserId: sender[1], AuthenticationCode: req.Args[1]})
 
 	if err != nil {
-		rsp.Error = "@" + sender[1] + " I had an issue authing your request, please reauth or contact your administrator."
+		rsp.Result = []byte("<@" + sender[1] + "> I had an issue authing your request, please reauth or contact your administrator.")
 		return nil
 	}
 
-	if response.Roles == nil {
-		rsp.Error = "@" + sender[1] + " *Unsure Response*: You have 0 roles assigned"
+	if response.Roles == nil || len(response.Roles) == 0 {
+		rsp.Result = []byte("<@" + sender[1] + "> *Unsure Response*: You have 0 roles assigned")
 		return nil
 	}
 
 	if len(response.CharacterName) == 0 {
-		rsp.Error = "@" + sender[1] + " *Unsure Response*: You have no character"
+		rsp.Result = []byte("<@" + sender[1] + "> *Unsure Response*: You have no character")
 		return nil
 	}
 
 	err = c.client.UpdateMember(c.guildID, sender[1], response.Roles)
 
 	if err != nil {
-		rsp.Error = "@" + sender[1] + " I had an issue talking to the chat service, please try again later."
+		rsp.Result = []byte("<@" + sender[1] + "> I had an issue talking to the chat service, please try again later.")
 		return nil
 	}
 
-	rsp.Result = []byte("@" + sender[1] + " *Success*: " + response.CharacterName + " has been successfully authed")
+	rsp.Result = []byte("<@" + sender[1] + "> *Success*: " + response.CharacterName + " has been successfully authed")
 
 	return nil
 }

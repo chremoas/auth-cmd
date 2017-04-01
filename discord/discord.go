@@ -31,7 +31,8 @@ func NewClient(token string) (Client, error) {
 	session, err := discordgo.New("Bot " + token)
 	var newClient client
 	if err != nil {
-		newClient = client{session: session}
+		return nil, err
 	}
-	return &newClient, err
+	newClient = client{session: session}
+	return &newClient, nil
 }

@@ -16,7 +16,6 @@ import (
 type Configuration struct {
 	Application struct {
 		BotToken         string `yaml:"botToken"`
-		GuildId          string
 		Namespace        string
 		AuthSrvNamespace string `yaml:"authSrvNamespace"`
 		Name             string
@@ -65,7 +64,7 @@ func main() {
 	checker.Start()
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
-			configuration.Application.GuildId,
+			configuration.Application.DiscordServerId,
 			configuration.Application.Name,
 			clientFactory{name: authSvcName, client: service.Client()},
 			chatClient,
