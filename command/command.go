@@ -5,7 +5,6 @@ import (
 	proto "github.com/micro/go-bot/proto"
 	uauthsvc "github.com/abaeve/auth-srv/proto"
 	"github.com/abaeve/auth-bot/discord"
-	"github.com/micro/go-micro/client"
 	"strings"
 )
 
@@ -17,10 +16,14 @@ func (be botError) Error() string {
 	return be.message
 }
 
+type ClientFactory interface {
+	NewClient() uauthsvc.UserAuthenticationClient
+}
+
 type Command struct {
 	guildID string
 	name    string
-	authSvc uauthsvc.UserAuthenticationClient
+	factory ClientFactory
 	client  discord.Client
 }
 
@@ -41,18 +44,30 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 		return botError{"Could not understand command"}
 	}
 
-	response, err := c.authSvc.Confirm(context.Background(), &uauthsvc.AuthConfirmRequest{UserId: sender[1], AuthenticationCode: req.Args[1]}, nil)
+	client := c.factory.NewClient()
+
+	response, err := client.Confirm(ctx, &uauthsvc.AuthConfirmRequest{UserId: sender[1], AuthenticationCode: req.Args[1]})
 
 	if err != nil {
 		rsp.Error = "@" + sender[1] + " I had an issue authing your request, please reauth or contact your administrator."
-		return botError{"Received an error from the auth service: " + err.Error()}
+		return nil
+	}
+
+	if response.Roles == nil {
+		rsp.Error = "@" + sender[1] + " *Unsure Response*: You have 0 roles assigned"
+		return nil
+	}
+
+	if len(response.CharacterName) == 0 {
+		rsp.Error = "@" + sender[1] + " *Unsure Response*: You have no character"
+		return nil
 	}
 
 	err = c.client.UpdateMember(c.guildID, sender[1], response.Roles)
 
 	if err != nil {
 		rsp.Error = "@" + sender[1] + " I had an issue talking to the chat service, please try again later."
-		return botError{"Received (" + err.Error() + ") from the chat service."}
+		return nil
 	}
 
 	rsp.Result = []byte("@" + sender[1] + " *Success*: " + response.CharacterName + " has been successfully authed")
@@ -60,7 +75,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	return nil
 }
 
-func NewCommand(guildID, myName, authSvcName string, microClient client.Client, client discord.Client) *Command {
-	newCommand := Command{guildID: guildID, name: myName, authSvc: uauthsvc.NewUserAuthenticationClient(authSvcName, microClient), client: client}
+func NewCommand(guildID, myName string, factory ClientFactory, client discord.Client) *Command {
+	newCommand := Command{guildID: guildID, name: myName, factory: factory, client: client}
 	return &newCommand
 }

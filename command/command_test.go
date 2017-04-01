@@ -102,24 +102,52 @@ func (_mr *_MockClientRecorder) UpdateMember(arg0, arg1, arg2 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateMember", arg0, arg1, arg2)
 }
 
+type MockClientFactory struct {
+	ctrl     *gomock.Controller
+	recorder *_MockClientFactoryRecorder
+}
+type _MockClientFactoryRecorder struct {
+	mock *MockClientFactory
+}
+
+func NewMockClientFactory(ctrl *gomock.Controller) *MockClientFactory {
+	mock := &MockClientFactory{ctrl: ctrl}
+	mock.recorder = &_MockClientFactoryRecorder{mock}
+	return mock
+}
+
+func (_m *MockClientFactory) EXPECT() *_MockClientFactoryRecorder {
+	return _m.recorder
+}
+
+func (_m *MockClientFactory) NewClient() proto.UserAuthenticationClient {
+	ret := _m.ctrl.Call(_m, "NewClient")
+	ret0, _ := ret[0].(proto.UserAuthenticationClient)
+	return ret0
+}
+
+func (_mr *_MockClientFactoryRecorder) NewClient() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "NewClient")
+}
 //</editor-fold>
 
 func TestBotExec(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
 	defer mockCtrl.Finish()
 
 	expectedCharName := "Test Char Name"
 
 	gomock.InOrder(
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc),
 		mockAuthSvc.EXPECT().Confirm(
 			context.Background(),
 			&proto.AuthConfirmRequest{
 				UserId:             "u123456",
 				AuthenticationCode: "1234567890",
 			},
-			gomock.Any(),
 		).Return(
 			&proto.AuthConfirmResponse{
 				Success:       true,
@@ -131,7 +159,7 @@ func TestBotExec(t *testing.T) {
 		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}),
 	)
 
-	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
 
 	response := botprot.ExecResponse{}
 	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
@@ -155,14 +183,16 @@ func TestInvalidCommandExecution(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
 	defer mockCtrl.Finish()
 
 	gomock.InOrder(
-		mockAuthSvc.EXPECT().Confirm(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc).Times(0),
+		mockAuthSvc.EXPECT().Confirm(gomock.Any(), gomock.Any()).Times(0),
 		mockClient.EXPECT().UpdateMember(gomock.Any(), gomock.Any(), gomock.Any()).Times(0),
 	)
 
-	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
 
 	var response botprot.ExecResponse
 
@@ -183,18 +213,19 @@ func TestErrorFromAuthSvc(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
 	defer mockCtrl.Finish()
 
 	authError := "There was an issue over there ->"
 
 	gomock.InOrder(
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc),
 		mockAuthSvc.EXPECT().Confirm(
 			context.Background(),
 			&proto.AuthConfirmRequest{
 				UserId:             "u123456",
 				AuthenticationCode: "1234567890",
 			},
-			gomock.Any(),
 		).Return(
 			nil,
 			&botError{message: authError},
@@ -202,19 +233,19 @@ func TestErrorFromAuthSvc(t *testing.T) {
 		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}).Times(0),
 	)
 
-	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
 
 	response := botprot.ExecResponse{}
 	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
 
-	if err == nil {
-		t.Fatal("Expected an error but received nil")
+	if err != nil {
+		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	expectedAuthError := "Received an error from the auth service: " + authError
+	expectedAuthError := "@u123456 I had an issue authing your request, please reauth or contact your administrator."
 
-	if err.Error() != expectedAuthError {
-		t.Fatalf("Error text: (%s) did not match expected: (%s)", err.Error(), expectedAuthError)
+	if response.Error != expectedAuthError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", response.Error, expectedAuthError)
 	}
 
 	expectedUserError := "@u123456 I had an issue authing your request, please reauth or contact your administrator."
@@ -228,18 +259,19 @@ func TestErrorFromDiscord(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
 	defer mockCtrl.Finish()
 
 	discordError := "There was an issue over there ->"
 
 	gomock.InOrder(
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc),
 		mockAuthSvc.EXPECT().Confirm(
 			context.Background(),
 			&proto.AuthConfirmRequest{
 				UserId:             "u123456",
 				AuthenticationCode: "1234567890",
 			},
-			gomock.Any(),
 		).Return(
 			&proto.AuthConfirmResponse{
 				Success:       true,
@@ -251,19 +283,19 @@ func TestErrorFromDiscord(t *testing.T) {
 		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}).Return(&botError{message: discordError}),
 	)
 
-	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
 
 	response := botprot.ExecResponse{}
 	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
 
-	if err == nil {
-		t.Fatal("Expected an error but received nil")
+	if err != nil {
+		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	expectedDiscordError := "Received (" + discordError + ") from the chat service."
+	expectedDiscordError := "@u123456 I had an issue talking to the chat service, please try again later."
 
-	if err.Error() != expectedDiscordError {
-		t.Fatalf("Error text: (%s) did not match expected: (%s)", err.Error(), expectedDiscordError)
+	if response.Error != expectedDiscordError {
+		t.Fatalf("Error text: (%s) did not match expected: (%s)", response.Error, expectedDiscordError)
 	}
 
 	expectedUserError := "@u123456 I had an issue talking to the chat service, please try again later."
@@ -273,13 +305,98 @@ func TestErrorFromDiscord(t *testing.T) {
 	}
 }
 
-func TestHelp(t *testing.T) {
+func TestNilRolesInResponse(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
 	defer mockCtrl.Finish()
 
-	cmd := Command{guildID: "g123456", client: mockClient, authSvc: mockAuthSvc, name: "test"}
+	expectedCharName := "Test Char Name"
+
+	gomock.InOrder(
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc),
+		mockAuthSvc.EXPECT().Confirm(
+			context.Background(),
+			&proto.AuthConfirmRequest{
+				UserId:             "u123456",
+				AuthenticationCode: "1234567890",
+			},
+		).Return(
+			&proto.AuthConfirmResponse{
+				Success:       true,
+				CharacterName: expectedCharName,
+			},
+			nil,
+		),
+		mockClient.EXPECT().UpdateMember(gomock.Any(), gomock.Any(), []string{}).Times(0),
+	)
+
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
+
+	response := botprot.ExecResponse{}
+	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
+
+	if err != nil {
+		t.Fatal("Received an error when one wasn't expected")
+	}
+
+	if string(response.Error) != "@u123456 *Unsure Response*: You have 0 roles assigned" {
+		t.Fatalf("Result string, expected (%s) received (%s)",
+			"@u123456 *Unsure Response*: You have 0 roles assigned",
+			string(response.Result))
+	}
+}
+
+// This should really never happen because without a character we shouldn't be able to get any roles but I'm testing it anyways...
+func TestNilCharacterInResponse(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	defer mockCtrl.Finish()
+
+	gomock.InOrder(
+		mockFactory.EXPECT().NewClient().Return(mockAuthSvc),
+		mockAuthSvc.EXPECT().Confirm(
+			context.Background(),
+			&proto.AuthConfirmRequest{
+				UserId:             "u123456",
+				AuthenticationCode: "1234567890",
+			},
+		).Return(
+			&proto.AuthConfirmResponse{
+				Success: true,
+				Roles:   []string{"ROLE1", "ROLE2"},
+			},
+			nil,
+		),
+		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"ROLE1", "ROLE2"}).Times(0),
+	)
+
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
+
+	response := botprot.ExecResponse{}
+	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth", "1234567890"}}, &response)
+
+	if err != nil {
+		t.Fatal("Received an error when one wasn't expected")
+	}
+
+	if string(response.Error) != "@u123456 *Unsure Response*: You have no character" {
+		t.Fatalf("Result string, expected (%s) received (%s)",
+			"@u123456 *Unsure Response*: You have no character",
+			string(response.Result))
+	}
+}
+
+func TestHelp(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	defer mockCtrl.Finish()
+
+	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test"}
 
 	response := botprot.HelpResponse{}
 

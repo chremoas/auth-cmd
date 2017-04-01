@@ -9,15 +9,18 @@ import (
 	"github.com/abaeve/auth-bot/command"
 	"github.com/abaeve/auth-bot/discord"
 	"github.com/abaeve/auth-bot/background"
+	"github.com/micro/go-micro/client"
+	uauthsvc "github.com/abaeve/auth-srv/proto"
 )
 
 type Configuration struct {
 	Application struct {
-		BotToken        string `yaml:"botToken"`
-		GuildId         string
-		Namespace       string
-		Name            string
-		DiscordServerId string `yaml:"discordServerId"`
+		BotToken         string `yaml:"botToken"`
+		GuildId          string
+		Namespace        string
+		AuthSrvNamespace string `yaml:"authSrvNamespace"`
+		Name             string
+		DiscordServerId  string `yaml:"discordServerId"`
 	}
 }
 
@@ -57,15 +60,14 @@ func main() {
 
 	service.Init()
 
-	authSvcName := configuration.Application.Namespace + ".auth-srv"
+	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
 	checker = background.NewChecker(chatClient, authSvcName, service.Client())
 	checker.Start()
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
 			configuration.Application.GuildId,
 			configuration.Application.Name,
-			authSvcName,
-			service.Client(),
+			clientFactory{name: authSvcName, client: service.Client()},
 			chatClient,
 		),
 	)
@@ -73,4 +75,13 @@ func main() {
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
 	}
+}
+
+type clientFactory struct {
+	name   string
+	client client.Client
+}
+
+func (c clientFactory) NewClient() uauthsvc.UserAuthenticationClient {
+	return uauthsvc.NewUserAuthenticationClient(c.name, c.client)
 }
