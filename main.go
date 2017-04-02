@@ -60,7 +60,15 @@ func main() {
 	service.Init()
 
 	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
-	checker = background.NewChecker(chatClient, authSvcName, service.Client())
+	roleMap := discord.NewRoleMap(configuration.Application.DiscordServerId, chatClient)
+
+	err = roleMap.UpdateRoles()
+	if err != nil {
+		message, _ := fmt.Printf("Had an issue retrieving the discord roles: %s", err)
+		panic(message)
+	}
+
+	checker = background.NewChecker(chatClient, authSvcName, service.Client(), roleMap)
 	checker.Start()
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
@@ -68,6 +76,7 @@ func main() {
 			configuration.Application.Name,
 			clientFactory{name: authSvcName, client: service.Client()},
 			chatClient,
+			roleMap,
 		),
 	)
 

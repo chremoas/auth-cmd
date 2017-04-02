@@ -5,9 +5,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// This is a very thin wrapper around the discordgo api for testability purposes
+// and to easily keep track of what endpoints are being consumed
 type Client interface {
 	UpdateMember(guildID, userID string, roles []string) error
 	GetAllMembers(guildID, after string, limit int) ([]*discordgo.Member, error)
+	GetAllRoles(guildID string) ([]*discordgo.Role, error)
 }
 
 type client struct {
@@ -25,6 +28,12 @@ func (cl *client) GetAllMembers(guildID, after string, limit int) ([]*discordgo.
 	cl.mutex.Lock()
 	defer cl.mutex.Unlock()
 	return cl.session.GuildMembers(guildID, after, limit)
+}
+
+func (cl *client) GetAllRoles(guildID string) ([]*discordgo.Role, error) {
+	cl.mutex.Lock()
+	defer cl.mutex.Unlock()
+	return cl.session.GuildRoles(guildID)
 }
 
 func NewClient(token string) (Client, error) {

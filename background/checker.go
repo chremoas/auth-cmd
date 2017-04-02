@@ -17,6 +17,7 @@ type Checker interface {
 type checker struct {
 	client  discord.Client
 	authSvc uauthsvc.UserAuthenticationClient
+	roleMap discord.RoleMap
 }
 
 func (c checker) Start() error {
@@ -35,7 +36,7 @@ func (c checker) Stop() error {
 	return nil
 }
 
-func NewChecker(client discord.Client, serviceName string, microClient client.Client) Checker {
-	newChecker := checker{client: client, authSvc: uauthsvc.NewUserAuthenticationClient(serviceName, microClient)}
+func NewChecker(client discord.Client, serviceName string, microClient client.Client, roleMap discord.RoleMap) Checker {
+	newChecker := checker{client: client, authSvc: uauthsvc.NewUserAuthenticationClient(serviceName, microClient), roleMap: roleMap}
 	return newChecker
 }
