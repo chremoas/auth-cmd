@@ -11,6 +11,7 @@ import (
 	"github.com/abaeve/auth-bot/background"
 	"github.com/micro/go-micro/client"
 	uauthsvc "github.com/abaeve/auth-srv/proto"
+	"time"
 )
 
 type Configuration struct {
@@ -68,13 +69,14 @@ func main() {
 		panic(message)
 	}
 
-	checker = background.NewChecker(chatClient, authSvcName, service.Client(), roleMap)
+	clientFactory := clientFactory{name: authSvcName, client: service.Client()}
+	checker = background.NewChecker(configuration.Application.DiscordServerId, chatClient, &clientFactory, roleMap, time.Minute*5)
 	checker.Start()
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
 			configuration.Application.DiscordServerId,
 			configuration.Application.Name,
-			clientFactory{name: authSvcName, client: service.Client()},
+			&clientFactory,
 			chatClient,
 			roleMap,
 		),

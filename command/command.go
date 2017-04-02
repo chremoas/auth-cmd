@@ -16,6 +16,7 @@ func (be botError) Error() string {
 	return be.message
 }
 
+//TODO: Refactor this elsewhere... too tired right now and I want to start the checker tests.
 type ClientFactory interface {
 	NewClient() uauthsvc.UserAuthenticationClient
 }
