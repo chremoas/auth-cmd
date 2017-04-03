@@ -8,14 +8,6 @@ import (
 	"strings"
 )
 
-type botError struct {
-	message string
-}
-
-func (be botError) Error() string {
-	return be.message
-}
-
 //TODO: Refactor this elsewhere... too tired right now and I want to start the checker tests.
 type ClientFactory interface {
 	NewClient() uauthsvc.UserAuthenticationClient
@@ -43,7 +35,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 
 	if len(req.Args) != 2 {
 		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I did not understand your command.")
-		return botError{"Could not understand command"}
+		return nil
 	}
 
 	client := c.factory.NewClient()

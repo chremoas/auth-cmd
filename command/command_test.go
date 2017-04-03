@@ -238,6 +238,14 @@ func (_mr *_MockRoleMapRecorder) UpdateRoles() *gomock.Call {
 }
 //</editor-fold>
 
+type mockError struct {
+	message string
+}
+
+func (me *mockError) Error() string {
+	return me.message
+}
+
 func TestBotExec(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
@@ -362,8 +370,8 @@ func TestInvalidCommandExecution(t *testing.T) {
 
 	err := cmd.Exec(context.Background(), &botprot.ExecRequest{Sender: "g123456:u123456", Args: []string{"auth"}}, &response)
 
-	if err == nil {
-		t.Fatal("Expected an error but received nil")
+	if err != nil {
+		t.Fatal("Expected nil but received an error")
 	}
 
 	expectedResponseError := "<@u123456>, :octagonal_sign: I did not understand your command."
@@ -393,7 +401,7 @@ func TestErrorFromAuthSvc(t *testing.T) {
 			},
 		).Return(
 			nil,
-			&botError{message: authError},
+			&mockError{message: authError},
 		),
 		mockRoleMap.EXPECT().GetRoleId("ROLE1").Return("1234567890").Times(0),
 		mockRoleMap.EXPECT().GetRoleId("ROLE2").Return("2345678901").Times(0),
@@ -450,7 +458,7 @@ func TestErrorFromDiscord(t *testing.T) {
 		),
 		mockRoleMap.EXPECT().GetRoleId("ROLE1").Return("1234567890"),
 		mockRoleMap.EXPECT().GetRoleId("ROLE2").Return("2345678901"),
-		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"1234567890", "2345678901"}).Return(&botError{message: discordError}),
+		mockClient.EXPECT().UpdateMember("g123456", "u123456", []string{"1234567890", "2345678901"}).Return(&mockError{message: discordError}),
 	)
 
 	cmd := Command{guildID: "g123456", client: mockClient, factory: mockFactory, name: "test", roleMap: mockRoleMap}
@@ -595,5 +603,35 @@ func TestHelp(t *testing.T) {
 
 	if response.Usage != "test" {
 		t.Fatalf("Response name: (%s) does not equal expected: (test)", response.Usage)
+	}
+}
+
+func TestNewCommand(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	mockRoleMap := NewMockRoleMap(mockCtrl)
+	defer mockCtrl.Finish()
+
+	command := NewCommand("g1234567890", "test", mockFactory, mockClient, mockRoleMap)
+
+	if command.client != mockClient {
+		t.Fatalf("Expected: (%+v) but received: (%+v)", mockClient, command.client)
+	}
+
+	if command.factory != mockFactory {
+		t.Fatalf("Expected: (%+v) but received: (%+v)", mockFactory, command.factory)
+	}
+
+	if command.roleMap != mockRoleMap {
+		t.Fatalf("Expected: (%+v) but received: (%+v)", mockRoleMap, command.roleMap)
+	}
+
+	if command.guildID != "g1234567890" {
+		t.Fatalf("Expected: (%+v) but received: (%+v)", "g1234567890", command.guildID)
+	}
+
+	if command.name != "test" {
+		t.Fatalf("Expected: (%+v) but received: (%+v)", "test", command.name)
 	}
 }

@@ -80,6 +80,14 @@ func (_mr *_MockClientRecorder) UpdateMember(arg0, arg1, arg2 interface{}) *gomo
 }
 //</editor-fold>
 
+type mockError struct {
+	message string
+}
+
+func (me *mockError) Error() string {
+	return me.message
+}
+
 func TestUpdateRoles(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
@@ -135,6 +143,23 @@ func TestUpdateRoles(t *testing.T) {
 
 	if roleMap.rolesByName["TEST ROLE 3"].ID != "0345678901" {
 		t.Fatalf("Expected id for role 3: (0345678901) but received: (%s)", roleMap.rolesByName["TEST ROLE 1"].ID)
+	}
+}
+
+func TestUpdateRolesWithError(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+
+	roleMap := &roleMapImpl{guildID: "1234567890", client: mockClient}
+
+	gomock.InOrder(
+		mockClient.EXPECT().GetAllRoles("1234567890").Return(nil, &mockError{"OUCH!"}),
+	)
+
+	err := roleMap.UpdateRoles()
+
+	if err == nil || err.Error() != "OUCH!" {
+		t.Fatalf("Received nil or the wrong string, expected (OUCH!) but received: (%s)", err.Error())
 	}
 }
 
@@ -271,6 +296,42 @@ func TestGetRoleName(t *testing.T) {
 
 	if roleName != "TEST ROLE 1" {
 		t.Fatalf("Expected: (TEST ROLE 1) but recieved: (%s)", roleName)
+	}
+}
+
+func TestGetRoleNameWithError(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+
+	roleMap := &roleMapImpl{guildID: "1234567890", client: mockClient}
+
+	gomock.InOrder(
+		mockClient.EXPECT().GetAllRoles("1234567890").Return([]*discordgo.Role{
+			{
+				Name: "TEST ROLE 1",
+				ID:   "0123456789",
+			},
+			{
+				Name: "TEST ROLE 2",
+				ID:   "0234567890",
+			},
+			{
+				Name: "TEST ROLE 3",
+				ID:   "0345678901",
+			},
+		}, nil),
+	)
+
+	err := roleMap.UpdateRoles()
+
+	if err != nil {
+		t.Fatalf("Received an error when none was expected: (%s)", err)
+	}
+
+	roleName := roleMap.GetRoleName("01234567890")
+
+	if roleName != "" {
+		t.Fatalf("Expected: (\"\") but recieved: (%s)", roleName)
 	}
 }
 
