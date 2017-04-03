@@ -48,6 +48,27 @@ func (_mr *_MockClientRecorder) GetAllRoles(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAllRoles", arg0)
 }
 
+func (_m *MockClient) GetUser(_param0 string) (*discordgo.User, error) {
+	ret := _m.ctrl.Call(_m, "GetUser", _param0)
+	ret0, _ := ret[0].(*discordgo.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) GetUser(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUser", arg0)
+}
+
+func (_m *MockClient) RemoveMemberRole(_param0 string, _param1 string, _param2 string) error {
+	ret := _m.ctrl.Call(_m, "RemoveMemberRole", _param0, _param1, _param2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) RemoveMemberRole(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RemoveMemberRole", arg0, arg1, arg2)
+}
+
 func (_m *MockClient) UpdateMember(_param0 string, _param1 string, _param2 []string) error {
 	ret := _m.ctrl.Call(_m, "UpdateMember", _param0, _param1, _param2)
 	ret0, _ := ret[0].(error)
@@ -57,7 +78,6 @@ func (_m *MockClient) UpdateMember(_param0 string, _param1 string, _param2 []str
 func (_mr *_MockClientRecorder) UpdateMember(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateMember", arg0, arg1, arg2)
 }
-
 //</editor-fold>
 
 func TestUpdateRoles(t *testing.T) {
@@ -89,32 +109,32 @@ func TestUpdateRoles(t *testing.T) {
 		t.Fatalf("Received an error when none was expected: (%s)", err)
 	}
 
-	if len(roleMap.roles) == 0 {
+	if len(roleMap.rolesByName) == 0 {
 		t.Fatal("Expected more than zero roles")
 	}
 
-	if roleMap.roles["TEST ROLE 1"] == nil {
+	if roleMap.rolesByName["TEST ROLE 1"] == nil {
 		t.Fatal("Role 1 was not properly put into the map")
 	}
 
-	if roleMap.roles["TEST ROLE 2"] == nil {
+	if roleMap.rolesByName["TEST ROLE 2"] == nil {
 		t.Fatal("Role 2 was not properly put into the map")
 	}
 
-	if roleMap.roles["TEST ROLE 3"] == nil {
+	if roleMap.rolesByName["TEST ROLE 3"] == nil {
 		t.Fatal("Role 3 was not properly put into the map")
 	}
 
-	if roleMap.roles["TEST ROLE 1"].ID != "0123456789" {
-		t.Fatalf("Expected id for role 1: (0123456789) but received: (%s)", roleMap.roles["TEST ROLE 1"].ID)
+	if roleMap.rolesByName["TEST ROLE 1"].ID != "0123456789" {
+		t.Fatalf("Expected id for role 1: (0123456789) but received: (%s)", roleMap.rolesByName["TEST ROLE 1"].ID)
 	}
 
-	if roleMap.roles["TEST ROLE 2"].ID != "0234567890" {
-		t.Fatalf("Expected id for role 2: (0234567890) but received: (%s)", roleMap.roles["TEST ROLE 1"].ID)
+	if roleMap.rolesByName["TEST ROLE 2"].ID != "0234567890" {
+		t.Fatalf("Expected id for role 2: (0234567890) but received: (%s)", roleMap.rolesByName["TEST ROLE 1"].ID)
 	}
 
-	if roleMap.roles["TEST ROLE 3"].ID != "0345678901" {
-		t.Fatalf("Expected id for role 3: (0345678901) but received: (%s)", roleMap.roles["TEST ROLE 1"].ID)
+	if roleMap.rolesByName["TEST ROLE 3"].ID != "0345678901" {
+		t.Fatalf("Expected id for role 3: (0345678901) but received: (%s)", roleMap.rolesByName["TEST ROLE 1"].ID)
 	}
 }
 
@@ -215,6 +235,42 @@ func TestGetRoleId(t *testing.T) {
 
 	if roleId != "0123456789" {
 		t.Fatalf("Expected role id: (%s) but received: (%s)", "0123456789", roleId)
+	}
+}
+
+func TestGetRoleName(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+
+	roleMap := &roleMapImpl{guildID: "1234567890", client: mockClient}
+
+	gomock.InOrder(
+		mockClient.EXPECT().GetAllRoles("1234567890").Return([]*discordgo.Role{
+			{
+				Name: "TEST ROLE 1",
+				ID:   "0123456789",
+			},
+			{
+				Name: "TEST ROLE 2",
+				ID:   "0234567890",
+			},
+			{
+				Name: "TEST ROLE 3",
+				ID:   "0345678901",
+			},
+		}, nil),
+	)
+
+	err := roleMap.UpdateRoles()
+
+	if err != nil {
+		t.Fatalf("Received an error when none was expected: (%s)", err)
+	}
+
+	roleName := roleMap.GetRoleName("0123456789")
+
+	if roleName != "TEST ROLE 1" {
+		t.Fatalf("Expected: (TEST ROLE 1) but recieved: (%s)", roleName)
 	}
 }
 

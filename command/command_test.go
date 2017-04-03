@@ -119,6 +119,27 @@ func (_mr *_MockClientRecorder) GetAllRoles(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAllRoles", arg0)
 }
 
+func (_m *MockClient) GetUser(_param0 string) (*discordgo.User, error) {
+	ret := _m.ctrl.Call(_m, "GetUser", _param0)
+	ret0, _ := ret[0].(*discordgo.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) GetUser(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUser", arg0)
+}
+
+func (_m *MockClient) RemoveMemberRole(_param0 string, _param1 string, _param2 string) error {
+	ret := _m.ctrl.Call(_m, "RemoveMemberRole", _param0, _param1, _param2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) RemoveMemberRole(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RemoveMemberRole", arg0, arg1, arg2)
+}
+
 func (_m *MockClient) UpdateMember(_param0 string, _param1 string, _param2 []string) error {
 	ret := _m.ctrl.Call(_m, "UpdateMember", _param0, _param1, _param2)
 	ret0, _ := ret[0].(error)
@@ -184,6 +205,16 @@ func (_m *MockRoleMap) GetRoleId(_param0 string) string {
 
 func (_mr *_MockRoleMapRecorder) GetRoleId(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRoleId", arg0)
+}
+
+func (_m *MockRoleMap) GetRoleName(_param0 string) string {
+	ret := _m.ctrl.Call(_m, "GetRoleName", _param0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+func (_mr *_MockRoleMapRecorder) GetRoleName(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRoleName", arg0)
 }
 
 func (_m *MockRoleMap) GetRoles() map[string]*discordgo.Role {

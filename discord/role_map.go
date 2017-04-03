@@ -9,13 +9,15 @@ type RoleMap interface {
 	UpdateRoles() error
 	GetRoles() map[string]*discordgo.Role
 	GetRoleId(roleName string) string
+	GetRoleName(roleId string) string
 }
 
 type roleMapImpl struct {
-	guildID string
-	client  Client
-	roles   map[string]*discordgo.Role
-	mutex   sync.Mutex
+	guildID     string
+	client      Client
+	rolesByName map[string]*discordgo.Role
+	rolesById   map[string]*discordgo.Role
+	mutex       sync.Mutex
 }
 
 func (rm *roleMapImpl) UpdateRoles() error {
@@ -27,10 +29,12 @@ func (rm *roleMapImpl) UpdateRoles() error {
 		return err
 	}
 
-	rm.roles = make(map[string]*discordgo.Role)
+	rm.rolesByName = make(map[string]*discordgo.Role)
+	rm.rolesById = make(map[string]*discordgo.Role)
 
 	for _, role := range roles {
-		rm.roles[role.Name] = role
+		rm.rolesByName[role.Name] = role
+		rm.rolesById[role.ID] = role
 	}
 
 	return nil
@@ -39,20 +43,33 @@ func (rm *roleMapImpl) UpdateRoles() error {
 func (rm *roleMapImpl) GetRoles() map[string]*discordgo.Role {
 	rm.mutex.Lock()
 	defer rm.mutex.Unlock()
-	return rm.roles
+	return rm.rolesByName
 }
 
 func (rm *roleMapImpl) GetRoleId(roleName string) string {
 	rm.mutex.Lock()
 	defer rm.mutex.Unlock()
 
-	role := rm.roles[roleName]
+	role := rm.rolesByName[roleName]
 
 	if role == nil {
 		return ""
 	}
 
 	return role.ID
+}
+
+func (rm *roleMapImpl) GetRoleName(roleId string) string {
+	rm.mutex.Lock()
+	defer rm.mutex.Unlock()
+
+	role := rm.rolesById[roleId]
+
+	if role == nil {
+		return ""
+	}
+
+	return role.Name
 }
 
 func NewRoleMap(guildID string, client Client) RoleMap {

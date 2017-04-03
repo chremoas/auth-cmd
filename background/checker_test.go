@@ -119,6 +119,27 @@ func (_mr *_MockClientRecorder) GetAllRoles(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetAllRoles", arg0)
 }
 
+func (_m *MockClient) GetUser(_param0 string) (*discordgo.User, error) {
+	ret := _m.ctrl.Call(_m, "GetUser", _param0)
+	ret0, _ := ret[0].(*discordgo.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) GetUser(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUser", arg0)
+}
+
+func (_m *MockClient) RemoveMemberRole(_param0 string, _param1 string, _param2 string) error {
+	ret := _m.ctrl.Call(_m, "RemoveMemberRole", _param0, _param1, _param2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) RemoveMemberRole(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RemoveMemberRole", arg0, arg1, arg2)
+}
+
 func (_m *MockClient) UpdateMember(_param0 string, _param1 string, _param2 []string) error {
 	ret := _m.ctrl.Call(_m, "UpdateMember", _param0, _param1, _param2)
 	ret0, _ := ret[0].(error)
@@ -186,6 +207,16 @@ func (_mr *_MockRoleMapRecorder) GetRoleId(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRoleId", arg0)
 }
 
+func (_m *MockRoleMap) GetRoleName(_param0 string) string {
+	ret := _m.ctrl.Call(_m, "GetRoleName", _param0)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+func (_mr *_MockRoleMapRecorder) GetRoleName(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRoleName", arg0)
+}
+
 func (_m *MockRoleMap) GetRoles() map[string]*discordgo.Role {
 	ret := _m.ctrl.Call(_m, "GetRoles")
 	ret0, _ := ret[0].(map[string]*discordgo.Role)
@@ -205,10 +236,9 @@ func (_m *MockRoleMap) UpdateRoles() error {
 func (_mr *_MockRoleMapRecorder) UpdateRoles() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateRoles")
 }
-
 //</editor-fold>
 
-func TestPoll(t *testing.T) {
+func TestPollHappyPathNoRoles(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockClient := NewMockClient(mockCtrl)
 	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
@@ -218,6 +248,7 @@ func TestPoll(t *testing.T) {
 
 	checker := NewChecker("g1234567890", mockClient, mockFactory, mockRoleMap, time.Millisecond*500)
 
+	mockClient.EXPECT().GetUser("@me").Return(&discordgo.User{ID: "12345678901"}, nil).Times(1)
 	mockRoleMap.EXPECT().UpdateRoles().Return(nil).Times(10)
 	mockClient.EXPECT().GetAllMembers("g1234567890", "", 1000).Return(
 		[]*discordgo.Member{
@@ -254,6 +285,99 @@ func TestPoll(t *testing.T) {
 	checker.Stop()
 }
 
-func TestUpdate(t *testing.T) {
+func TestPollRemoveAllRoles(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	mockRoleMap := NewMockRoleMap(mockCtrl)
+	defer mockCtrl.Finish()
 
+	checker := NewChecker("g1234567890", mockClient, mockFactory, mockRoleMap, time.Millisecond*500)
+
+	mockClient.EXPECT().GetUser("@me").Return(&discordgo.User{ID: "12345678901"}, nil).Times(1)
+	mockRoleMap.EXPECT().UpdateRoles().Return(nil).Times(10)
+	mockClient.EXPECT().GetAllMembers("g1234567890", "", 1000).Return(
+		[]*discordgo.Member{
+			{
+				User: &discordgo.User{
+					ID:       "u1234567890",
+					Username: "Test User 1",
+				},
+				Roles: []string{
+					"r1234567890",
+				},
+			},
+		},
+		nil,
+	).Times(10)
+	mockFactory.EXPECT().NewClient().Return(mockAuthSvc).Times(10)
+	mockAuthSvc.EXPECT().GetRoles(
+		context.Background(),
+		&proto.GetRolesRequest{UserId: "u1234567890"},
+	).Return(
+		&proto.AuthConfirmResponse{
+			Success:       true,
+			CharacterName: "Test Character Name 1",
+			Roles:         []string{},
+		},
+		nil,
+	).Times(10)
+	mockClient.EXPECT().RemoveMemberRole("g1234567890", "u1234567890", "r1234567890").Return(nil).Times(10)
+
+	checker.Start()
+
+	//Sleep a little longer than 10 ticks so we get all the calls we want to happen
+	time.Sleep(time.Millisecond * 501 * 10)
+
+	checker.Stop()
+}
+
+func TestDontMessWithRolesIfTheyAllExist(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	mockRoleMap := NewMockRoleMap(mockCtrl)
+	defer mockCtrl.Finish()
+
+	checker := NewChecker("g1234567890", mockClient, mockFactory, mockRoleMap, time.Millisecond*500)
+
+	mockClient.EXPECT().GetUser("@me").Return(&discordgo.User{ID: "12345678901"}, nil).Times(1)
+	mockRoleMap.EXPECT().UpdateRoles().Return(nil).Times(10)
+	mockClient.EXPECT().GetAllMembers("g1234567890", "", 1000).Return(
+		[]*discordgo.Member{
+			{
+				User: &discordgo.User{
+					ID:       "u1234567890",
+					Username: "Test User 1",
+				},
+				Roles: []string{
+					"r1234567890",
+				},
+			},
+		},
+		nil,
+	).Times(10)
+	mockFactory.EXPECT().NewClient().Return(mockAuthSvc).Times(10)
+	mockAuthSvc.EXPECT().GetRoles(
+		context.Background(),
+		&proto.GetRolesRequest{UserId: "u1234567890"},
+	).Return(
+		&proto.AuthConfirmResponse{
+			Success:       true,
+			CharacterName: "Test Character Name 1",
+			Roles:         []string{"ROLE1"},
+		},
+		nil,
+	).Times(10)
+	mockRoleMap.EXPECT().GetRoleId("ROLE1").Return("r1234567890").Times(10)
+	mockClient.EXPECT().RemoveMemberRole("g1234567890", "u1234567890", "r1234567890").Return(nil).Times(0)
+
+	checker.Start()
+
+	//Sleep a little longer than 10 ticks so we get all the calls we want to happen
+	time.Sleep(time.Millisecond * 501 * 10)
+
+	checker.Stop()
 }
