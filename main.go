@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/micro/go-micro"
 	proto "github.com/micro/go-bot/proto"
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
+	"github.com/abaeve/auth-common/config"
 	"github.com/abaeve/auth-bot/command"
 	"github.com/abaeve/auth-bot/discord"
 	"github.com/abaeve/auth-bot/background"
@@ -14,35 +12,13 @@ import (
 	"time"
 )
 
-type Configuration struct {
-	Application struct {
-		BotToken         string `yaml:"botToken"`
-		Namespace        string
-		AuthSrvNamespace string `yaml:"authSrvNamespace"`
-		Name             string
-		DiscordServerId  string `yaml:"discordServerId"`
-	}
-}
-
-var configuration Configuration
+var version string = "1.0.0"
 var checker background.Checker
 
 func main() {
-	data, err := ioutil.ReadFile("application.yaml")
-
-	//<editor-fold desc="Configuration Launch Sanity check">
-	//TODO: Candidate for shared function for all my services.
-	if err != nil {
-		panic("Could not read application.yaml for configuration data.")
-	}
-
-	err = yaml.Unmarshal([]byte(data), &configuration)
-
-	if err != nil {
-		message, _ := fmt.Printf("Parsing application.yaml failed: %s", err)
-		panic(message)
-	}
-	//</editor-fold>
+	configuration := config.Configuration{}
+	// These needs to be a commandline argument eventually
+	configuration.Load("application.yaml")
 
 	chatClient, err := discord.NewClient(configuration.Application.BotToken)
 
@@ -51,13 +27,10 @@ func main() {
 		panic(message)
 	}
 
-	service := micro.NewService(
-		micro.Name(
-			configuration.Application.Namespace +
-				"." + configuration.Application.Name,
-		),
-	)
-
+	service, err := configuration.NewService(version)
+	if err != nil {
+		panic(err)
+	}
 	service.Init()
 
 	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
@@ -75,7 +48,7 @@ func main() {
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
 			configuration.Application.DiscordServerId,
-			configuration.Application.Name,
+			configuration.Name,
 			&clientFactory,
 			chatClient,
 			roleMap,
