@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"github.com/golang/mock/gomock"
 	"github.com/bwmarrin/discordgo"
+	"github.com/golang/mock/gomock"
 	"testing"
 )
 
@@ -78,6 +78,7 @@ func (_m *MockClient) UpdateMember(_param0 string, _param1 string, _param2 []str
 func (_mr *_MockClientRecorder) UpdateMember(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateMember", arg0, arg1, arg2)
 }
+
 //</editor-fold>
 
 type mockError struct {

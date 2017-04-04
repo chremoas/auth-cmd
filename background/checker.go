@@ -1,13 +1,13 @@
 package background
 
 import (
+	"context"
+	"fmt"
+	"github.com/abaeve/auth-bot/command"
 	"github.com/abaeve/auth-bot/discord"
+	uauthsvc "github.com/abaeve/auth-srv/proto"
 	"github.com/bwmarrin/discordgo"
 	"time"
-	"github.com/abaeve/auth-bot/command"
-	"fmt"
-	"context"
-	uauthsvc "github.com/abaeve/auth-srv/proto"
 )
 
 type Checker interface {
