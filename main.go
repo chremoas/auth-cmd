@@ -27,7 +27,7 @@ func main() {
 		panic(message)
 	}
 
-	service := configuration.NewService(version)
+	service, err := configuration.NewService(version)
 	service.Init()
 
 	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
