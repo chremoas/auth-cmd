@@ -1,10 +1,10 @@
 package command
 
 import (
-	"golang.org/x/net/context"
-	proto "github.com/micro/go-bot/proto"
-	uauthsvc "github.com/abaeve/auth-srv/proto"
 	"github.com/abaeve/auth-bot/discord"
+	uauthsvc "github.com/abaeve/auth-srv/proto"
+	proto "github.com/micro/go-bot/proto"
+	"golang.org/x/net/context"
 	"strings"
 )
 

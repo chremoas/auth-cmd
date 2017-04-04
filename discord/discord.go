@@ -1,8 +1,8 @@
 package discord
 
 import (
-	"sync"
 	"github.com/bwmarrin/discordgo"
+	"sync"
 )
 
 // This is a very thin wrapper around the discordgo api for testability purposes

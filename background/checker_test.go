@@ -2,10 +2,10 @@ package background
 
 import (
 	proto "github.com/abaeve/auth-srv/proto"
+	"github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/micro/go-micro/client"
 	context "golang.org/x/net/context"
-	"github.com/bwmarrin/discordgo"
 	"testing"
 	"time"
 )
@@ -236,6 +236,7 @@ func (_m *MockRoleMap) UpdateRoles() error {
 func (_mr *_MockRoleMapRecorder) UpdateRoles() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateRoles")
 }
+
 //</editor-fold>
 
 type mockError struct {
