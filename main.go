@@ -28,6 +28,9 @@ func main() {
 	}
 
 	service, err := configuration.NewService(version)
+	if err != nil {
+		panic(err)
+	}
 	service.Init()
 
 	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
