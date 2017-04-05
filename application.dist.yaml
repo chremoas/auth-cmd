@@ -1,4 +1,4 @@
-application:
+bot:
   botToken: You bot token here, do not prepend Bot... we'll do that for you
   namespace: the namespace where you micro bot is at
   authSrvNamespace: namespace that the auth-srv instance lives in
