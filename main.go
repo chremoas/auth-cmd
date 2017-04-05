@@ -20,7 +20,7 @@ func main() {
 	// These needs to be a commandline argument eventually
 	configuration.Load("application.yaml")
 
-	chatClient, err := discord.NewClient(configuration.Application.BotToken)
+	chatClient, err := discord.NewClient(configuration.Bot.BotToken)
 
 	if err != nil {
 		message, _ := fmt.Printf("Had an issue starting a discord session: %s", err)
@@ -33,8 +33,8 @@ func main() {
 	}
 	service.Init()
 
-	authSvcName := configuration.Application.AuthSrvNamespace + ".auth-srv"
-	roleMap := discord.NewRoleMap(configuration.Application.DiscordServerId, chatClient)
+	authSvcName := configuration.Bot.AuthSrvNamespace + ".auth-srv"
+	roleMap := discord.NewRoleMap(configuration.Bot.DiscordServerId, chatClient)
 
 	err = roleMap.UpdateRoles()
 	if err != nil {
@@ -43,11 +43,11 @@ func main() {
 	}
 
 	clientFactory := clientFactory{name: authSvcName, client: service.Client()}
-	checker = background.NewChecker(configuration.Application.DiscordServerId, chatClient, &clientFactory, roleMap, time.Minute*5)
+	checker = background.NewChecker(configuration.Bot.DiscordServerId, chatClient, &clientFactory, roleMap, time.Minute*5)
 	checker.Start()
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
-			configuration.Application.DiscordServerId,
+			configuration.Bot.DiscordServerId,
 			configuration.Name,
 			&clientFactory,
 			chatClient,
