@@ -27,7 +27,7 @@ func main() {
 		panic(message)
 	}
 
-	service, err := configuration.NewService(version)
+	service, err := configuration.NewService(version, "auth")
 	if err != nil {
 		panic(err)
 	}
