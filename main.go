@@ -5,7 +5,7 @@ import (
 	"github.com/abaeve/auth-bot/background"
 	"github.com/abaeve/auth-bot/command"
 	"github.com/abaeve/auth-bot/discord"
-	"github.com/abaeve/auth-common/config"
+	"github.com/abaeve/services-common/config"
 	uauthsvc "github.com/abaeve/auth-srv/proto"
 	proto "github.com/micro/go-bot/proto"
 	"github.com/micro/go-micro/client"
