@@ -523,7 +523,7 @@ func TestNilRolesInResponse(t *testing.T) {
 		t.Fatal("Received an error when one wasn't expected")
 	}
 
-	expectedResult := "<@u123456>, :no_entry_sign: **Unsure Response**: You have 0 roles assigned."
+	expectedResult := "<@u123456>, :warning: **Unsure Response**: " + expectedCharName + " was authed but has 0 roles assigned."
 
 	if string(response.Result) != expectedResult {
 		t.Fatalf("Result string, expected (%s) received (%s)",

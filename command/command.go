@@ -48,7 +48,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	}
 
 	if response.Roles == nil || len(response.Roles) == 0 {
-		rsp.Result = []byte("<@" + sender[1] + ">, :no_entry_sign: **Unsure Response**: You have 0 roles assigned.")
+		rsp.Result = []byte("<@" + sender[1] + ">, :warning: **Unsure Response**: " + response.CharacterName + " was authed but has 0 roles assigned.")
 		return nil
 	}
 
