@@ -339,7 +339,7 @@ func TestPollWithErrorAtUpdateRoles(t *testing.T) {
 
 	checker.Start()
 
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
@@ -378,7 +378,7 @@ func TestPollWithErrorAtGetAllMembers(t *testing.T) {
 
 	checker.Start()
 
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
@@ -421,7 +421,7 @@ func TestPollWithErrorAtAuthClientGetRoles(t *testing.T) {
 	checker.Start()
 
 	//Sleep for just one tick and then a tiny bit more
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
@@ -467,7 +467,7 @@ func TestPollWithErrorAtClientUpdateMember(t *testing.T) {
 
 	checker.Start()
 
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
@@ -512,7 +512,7 @@ func TestPollWithErrorAtClientRemoveMemberRole(t *testing.T) {
 
 	checker.Start()
 
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
@@ -614,7 +614,7 @@ func TestPollRemoveARole(t *testing.T) {
 	checker.Start()
 
 	//Sleep for just one tick and then a tiny bit more
-	time.Sleep(time.Millisecond * 501)
+	time.Sleep(time.Millisecond * 520)
 
 	checker.Stop()
 }
