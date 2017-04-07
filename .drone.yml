@@ -26,5 +26,5 @@ pipeline:
       - go test
       - cd ../discord
       - go test
-#      - go get github.com/mattn/goveralls
-#      - goveralls -service=drone.io -repotoken=${REPOTOKEN}
+      - go get github.com/mattn/goveralls
+      - goveralls -service=drone.io -repotoken=${REPOTOKEN}
