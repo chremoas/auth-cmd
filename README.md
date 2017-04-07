@@ -5,4 +5,4 @@
 
 
 # Drone
-[![Build Status](https://vps124874.vps.ovh.ca/api/badges/abaeve/auth-bot/status.svg)](https://vps124874.vps.ovh.ca/abaeve/auth-bot)
+[![Build Status](https://drone.aba-eve.com/api/badges/abaeve/auth-bot/status.svg)](https://vps124874.vps.ovh.ca/abaeve/auth-bot)
