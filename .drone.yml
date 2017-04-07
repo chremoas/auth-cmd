@@ -18,7 +18,7 @@ pipeline:
       - git remote add abafork https://github.com/abaeve/go-bot
       - git fetch abafork fork
       - git checkout fork
-      - cd $GOPATH/src/github.com/abaeve/auth-bot
+      - cd /go/src/github.com/abaeve/auth-bot
       - go get -t -v ./...
       - cd background
       - go test
