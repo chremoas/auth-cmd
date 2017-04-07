@@ -6,6 +6,7 @@ pipeline:
   build:
     image: golang:1.8
     commands:
+      - pwd
       - export GOPATH=/drone
       - export PATH=$PATH:$GOPATH/bin
       - go get github.com/micro/micro
