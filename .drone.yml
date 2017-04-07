@@ -6,9 +6,6 @@ pipeline:
   build:
     image: golang:1.8
     commands:
-      - pwd
-      - export GOPATH=/go
-      - export PATH=$PATH:$GOPATH/bin
       - go get github.com/micro/micro #Unfortunately the next few steps are needed for now
       - cd $GOPATH/src/github.com/micro/micro #Some changes I made require our fork
       - git remote add abafork https://github.com/abaeve/micro
@@ -20,11 +17,5 @@ pipeline:
       - git checkout fork
       - cd /go/src/github.com/abaeve/auth-bot #Now get back to where we started, we can do what we initially wanted to do
       - go get -t -v ./...
-      - cd background
-      - go test
-      - cd ../command
-      - go test
-      - cd ../discord
-      - go test
       - go get github.com/mattn/goveralls
       - goveralls -service=drone.io -repotoken=${REPOTOKEN}
