@@ -18,4 +18,4 @@ pipeline:
       - cd /go/src/github.com/abaeve/auth-bot #Now get back to where we started, we can do what we initially wanted to do
       - go get -t -v ./...
       - go get github.com/mattn/goveralls
-      - goveralls -service=drone.io -repotoken=${REPOTOKEN}
+      - goveralls -service=drone.io -ignore=discord/discord.go,main.go -repotoken=${REPOTOKEN}
