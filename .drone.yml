@@ -7,7 +7,7 @@ pipeline:
     image: golang:1.8
     commands:
       - pwd
-      - export GOPATH=/drone
+      - export GOPATH=/go
       - export PATH=$PATH:$GOPATH/bin
       - go get github.com/micro/micro
       - go get github.com/abaeve/services-common/config
