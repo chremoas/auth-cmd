@@ -82,18 +82,31 @@ func (c *checker) Update(members []*discordgo.Member) error {
 				var roles []string
 
 				//Map the roles to their id's for quick lookup right below
-				roleMap := make(map[string]string)
+				//map[roleId]roleName
+				grantedRoleMap := make(map[string]string)
 				for _, role := range response.Roles {
 					roleId := c.roleMap.GetRoleId(role)
 					roles = append(roles, roleId)
-					roleMap[roleId] = role
+					grantedRoleMap[roleId] = role
 				}
 
-				//If the user has some roles, it's POSSIBLE that he has tall the one's she should have
+				//map[roleId]roleName
+				currentRoleMap := make(map[string]string)
+				for _, roleId := range member.Roles {
+					roleName := c.roleMap.GetRoleName(roleId)
+					currentRoleMap[roleId] = roleName
+				}
+
+				//Check both ways, whats currently assigned and what SHOULD be assigned.  If ANYTHING is missing, just mass update.
 				allRolesPresent := len(member.Roles) > 0
-				for _, role := range member.Roles {
-					if len(roleMap[role]) == 0 {
-						//FOUND ONE!
+				for roleId := range grantedRoleMap {
+					if len(currentRoleMap[roleId]) == 0 {
+						allRolesPresent = false
+					}
+				}
+
+				for _, roleId := range member.Roles {
+					if len(grantedRoleMap[roleId]) == 0 {
 						allRolesPresent = false
 					}
 				}

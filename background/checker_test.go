@@ -608,6 +608,8 @@ func TestPollRemoveARole(t *testing.T) {
 		nil,
 	).Times(1)
 	mockRoleMap.EXPECT().GetRoleId("ROLE2").Return("r2234567890")
+	mockRoleMap.EXPECT().GetRoleName("r1234567890").Return("ROLE1")
+	mockRoleMap.EXPECT().GetRoleName("r2234567890").Return("ROLE2")
 	mockClient.EXPECT().RemoveMemberRole("g1234567890", "u1234567890", "r1234567890").Return(nil).Times(0)
 	mockClient.EXPECT().UpdateMember("g1234567890", "u1234567890", []string{"r2234567890"}).Times(1)
 
@@ -658,7 +660,60 @@ func TestDontMessWithRolesIfTheyAllExist(t *testing.T) {
 		nil,
 	).Times(10)
 	mockRoleMap.EXPECT().GetRoleId("ROLE1").Return("r1234567890").Times(10)
+	mockRoleMap.EXPECT().GetRoleName("r1234567890").Return("ROLE1").Times(10)
 	mockClient.EXPECT().RemoveMemberRole("g1234567890", "u1234567890", "r1234567890").Return(nil).Times(0)
+
+	checker.Start()
+
+	//Sleep a little longer than 10 ticks so we get all the calls we want to happen
+	time.Sleep(time.Millisecond * 501 * 10)
+
+	checker.Stop()
+}
+
+func TestAddRolesThatAreMissing(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	mockClient := NewMockClient(mockCtrl)
+	mockAuthSvc := NewMockUserAuthenticationClient(mockCtrl)
+	mockFactory := NewMockClientFactory(mockCtrl)
+	mockRoleMap := NewMockRoleMap(mockCtrl)
+	defer mockCtrl.Finish()
+
+	checker := NewChecker("g1234567890", mockClient, mockFactory, mockRoleMap, time.Millisecond*500)
+
+	mockClient.EXPECT().GetUser("@me").Return(&discordgo.User{ID: "12345678901"}, nil).Times(1)
+	mockRoleMap.EXPECT().UpdateRoles().Return(nil).Times(10)
+	mockClient.EXPECT().GetAllMembers("g1234567890", "", 1000).Return(
+		[]*discordgo.Member{
+			{
+				User: &discordgo.User{
+					ID:       "u1234567890",
+					Username: "Test User 1",
+				},
+				Roles: []string{
+					"r1234567890",
+				},
+			},
+		},
+		nil,
+	).Times(10)
+	mockFactory.EXPECT().NewClient().Return(mockAuthSvc).Times(10)
+	mockAuthSvc.EXPECT().GetRoles(
+		context.Background(),
+		&proto.GetRolesRequest{UserId: "u1234567890"},
+	).Return(
+		&proto.AuthConfirmResponse{
+			Success:       true,
+			CharacterName: "Test Character Name 1",
+			Roles:         []string{"ROLE1", "ROLE2"},
+		},
+		nil,
+	).Times(10)
+	mockRoleMap.EXPECT().GetRoleId("ROLE1").Return("r1234567890").Times(10)
+	mockRoleMap.EXPECT().GetRoleId("ROLE2").Return("r2234567890").Times(10)
+	mockRoleMap.EXPECT().GetRoleName("r1234567890").Return("ROLE1").Times(10)
+	mockClient.EXPECT().RemoveMemberRole("g1234567890", "u1234567890", "r1234567890").Return(nil).Times(0)
+	mockClient.EXPECT().UpdateMember("g1234567890", "u1234567890", []string{"r1234567890", "r2234567890"}).Times(10)
 
 	checker.Start()
 
