@@ -17,7 +17,7 @@ var version string = "1.0.0"
 var service micro.Service
 
 func main() {
-	service = config.NewService(version, initialize)
+	service = config.NewService(version, "auth", initialize)
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
