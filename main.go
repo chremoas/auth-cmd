@@ -7,7 +7,7 @@ import (
 	"github.com/abaeve/auth-bot/discord"
 	uauthsvc "github.com/abaeve/auth-srv/proto"
 	"github.com/abaeve/services-common/config"
-	proto "github.com/micro/go-bot/proto"
+	proto "github.com/abaeve/chremoas/proto"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"time"
