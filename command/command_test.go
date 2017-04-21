@@ -2,9 +2,9 @@ package command
 
 import (
 	proto "github.com/abaeve/auth-srv/proto"
+	botprot "github.com/abaeve/chremoas/proto"
 	"github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
-	botprot "github.com/micro/go-bot/proto"
 	client "github.com/micro/go-micro/client"
 	context "golang.org/x/net/context"
 	"testing"
