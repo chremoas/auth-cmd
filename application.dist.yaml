@@ -7,3 +7,5 @@ bot:
 registry:
   hostname: localhost
   port: 8500
+serviceNames:
+  authSrv: auth-srv
