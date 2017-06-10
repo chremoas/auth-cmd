@@ -31,7 +31,7 @@ func initialize(configuration *config.Configuration) error {
 		panic(message)
 	}
 
-	authSvcName := configuration.Bot.AuthSrvNamespace + configuration.ServiceNames.AuthSrv
+	authSvcName := configuration.Bot.AuthSrvNamespace + "." + configuration.ServiceNames.AuthSrv
 	roleMap := discord.NewRoleMap(configuration.Bot.DiscordServerId, chatClient)
 
 	err = roleMap.UpdateRoles()
