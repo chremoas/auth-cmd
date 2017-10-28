@@ -1,9 +1,9 @@
 package command
 
 import (
-	"github.com/abaeve/auth-bot/discord"
-	uauthsvc "github.com/abaeve/auth-srv/proto"
-	proto "github.com/abaeve/chremoas/proto"
+	"git.maurer-it.net/abaeve/auth-bot/discord"
+	uauthsvc "git.maurer-it.net/abaeve/auth-srv/proto"
+	proto "git.maurer-it.net/abaeve/chremoas/proto"
 	"golang.org/x/net/context"
 	"strings"
 )

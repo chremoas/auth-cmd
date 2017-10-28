@@ -1,6 +1,6 @@
 workspace:
   base: /go
-  path: src/github.com/abaeve/auth-bot
+  path: src/git.maurer-it.net/abaeve/auth-bot
 
 pipeline:
   build:
@@ -8,14 +8,14 @@ pipeline:
     commands:
       - go get github.com/micro/micro #Unfortunately the next few steps are needed for now
       - cd $GOPATH/src/github.com/micro/micro #Some changes I made require our fork
-      - git remote add abafork https://github.com/abaeve/micro
+      - git remote add abafork https://git.maurer-it.net/abaeve/micro
       - git fetch abafork fork #So go get it
       - git checkout fork  #And check it out
       - cd $GOPATH/src/github.com/micro/go-bot #We need this ones fork as well
-      - git remote add abafork https://github.com/abaeve/go-bot
+      - git remote add abafork https://git.maurer-it.net/abaeve/go-bot
       - git fetch abafork fork
       - git checkout fork
-      - cd /go/src/github.com/abaeve/auth-bot #Now get back to where we started, we can do what we initially wanted to do
+      - cd /go/src/git.maurer-it.net/abaeve/auth-bot #Now get back to where we started, we can do what we initially wanted to do
       - go get -t -v ./...
       - go get github.com/mattn/goveralls
       - goveralls -service=drone.io -ignore=discord/discord.go,main.go -repotoken=${REPOTOKEN}

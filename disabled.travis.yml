@@ -5,15 +5,15 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
   - go get github.com/micro/micro
-  - go get github.com/abaeve/services-common/config
+  - go get git.maurer-it.net/abaeve/services-common/config
   - cd $GOPATH/src/github.com/micro/micro
-  - git remote add abafork https://github.com/abaeve/micro
+  - git remote add abafork https://git.maurer-it.net/abaeve/micro
   - git fetch abafork fork
   - git checkout fork
   - cd $GOPATH/src/github.com/micro/go-bot
-  - git remote add abafork https://github.com/abaeve/go-bot
+  - git remote add abafork https://git.maurer-it.net/abaeve/go-bot
   - git fetch abafork fork
   - git checkout fork
-  - cd $HOME/gopath/src/github.com/abaeve/auth-bot
+  - cd $HOME/gopath/src/git.maurer-it.net/abaeve/auth-bot
 script:
   - $HOME/gopath/bin/goveralls -service=travis-ci -ignore=discord/discord.go,main.go
