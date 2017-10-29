@@ -13,11 +13,11 @@ import (
 	"time"
 )
 
-var version string = "1.0.0"
+var Version string = "1.0.0"
 var service micro.Service
 
 func main() {
-	service = config.NewService(version, "auth", initialize)
+	service = config.NewService(Version, "auth", initialize)
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
