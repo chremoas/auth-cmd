@@ -7,7 +7,7 @@ ADD ./auth-bot /
 WORKDIR /
 
 RUN mkdir /etc/chremoas
-VOLUME /config
+VOLUME /etc/chremoas
 
 RUN rm -rf /var/cache/apk/*
 
