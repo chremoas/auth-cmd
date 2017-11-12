@@ -1,7 +1,7 @@
 package background
 
 import (
-	proto "git.maurer-it.net/abaeve/auth-srv/proto"
+	proto "github.com/abaeve/auth-srv/proto"
 	"github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/micro/go-micro/client"

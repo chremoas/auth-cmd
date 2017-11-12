@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"git.maurer-it.net/abaeve/auth-bot/background"
-	"git.maurer-it.net/abaeve/auth-bot/command"
-	"git.maurer-it.net/abaeve/auth-bot/discord"
-	uauthsvc "git.maurer-it.net/abaeve/auth-srv/proto"
-	proto "git.maurer-it.net/abaeve/chremoas/proto"
-	"git.maurer-it.net/abaeve/services-common/config"
+	"github.com/abaeve/auth-bot/background"
+	"github.com/abaeve/auth-bot/command"
+	"github.com/abaeve/auth-bot/discord"
+	uauthsvc "github.com/abaeve/auth-srv/proto"
+	proto "github.com/abaeve/chremoas/proto"
+	"github.com/abaeve/services-common/config"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"time"

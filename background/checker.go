@@ -3,9 +3,9 @@ package background
 import (
 	"context"
 	"fmt"
-	"git.maurer-it.net/abaeve/auth-bot/command"
-	"git.maurer-it.net/abaeve/auth-bot/discord"
-	uauthsvc "git.maurer-it.net/abaeve/auth-srv/proto"
+	"github.com/abaeve/auth-bot/command"
+	"github.com/abaeve/auth-bot/discord"
+	uauthsvc "github.com/abaeve/auth-srv/proto"
 	"github.com/bwmarrin/discordgo"
 	"time"
 )
