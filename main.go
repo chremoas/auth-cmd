@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/abaeve/auth-bot/background"
-	"github.com/abaeve/auth-bot/command"
-	"github.com/abaeve/auth-bot/discord"
-	uauthsvc "github.com/abaeve/auth-srv/proto"
-	proto "github.com/abaeve/chremoas/proto"
-	"github.com/abaeve/services-common/config"
+	"github.com/chremoas/auth-cmd/background"
+	"github.com/chremoas/auth-cmd/command"
+	"github.com/chremoas/auth-cmd/discord"
+	uauthsvc "github.com/chremoas/auth-srv/proto"
+	proto "github.com/chremoas/chremoas/proto"
+	"github.com/chremoas/services-common/config"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"time"

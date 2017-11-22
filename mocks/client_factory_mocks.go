@@ -4,7 +4,7 @@
 package mocks
 
 import (
-	proto "github.com/abaeve/auth-srv/proto"
+	proto "github.com/chremoas/auth-srv/proto"
 	gomock "github.com/golang/mock/gomock"
 )
 

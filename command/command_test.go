@@ -1,8 +1,8 @@
 package command
 
 import (
-	proto "github.com/abaeve/auth-srv/proto"
-	botprot "github.com/abaeve/chremoas/proto"
+	proto "github.com/chremoas/auth-srv/proto"
+	botprot "github.com/chremoas/chremoas/proto"
 	"github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
 	client "github.com/micro/go-micro/client"
