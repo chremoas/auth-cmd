@@ -1,9 +1,9 @@
 package background
 
 import (
-	"github.com/abaeve/auth-bot/mocks"
-	uauthmocks "github.com/abaeve/auth-srv/mocks"
-	proto "github.com/abaeve/auth-srv/proto"
+	"github.com/chremoas/auth-cmd/mocks"
+	uauthmocks "github.com/chremoas/auth-srv/mocks"
+	proto "github.com/chremoas/auth-srv/proto"
 	"github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
 	context "golang.org/x/net/context"
