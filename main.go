@@ -13,26 +13,26 @@ import (
 	"time"
 )
 
-var Version string = "1.0.0"
+var Version = "1.0.0"
 var service micro.Service
+var name = "auth"
 
 func main() {
-	service = config.NewService(Version, "auth", initialize)
+	service = config.NewService(Version, "cmd", name, initialize)
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
 	}
 }
 
-func initialize(configuration *config.Configuration) error {
-	chatClient, err := discord.NewClient(configuration.Bot.BotToken)
+func initialize(config *config.Configuration) error {
+	chatClient, err := discord.NewClient(config.Bot.BotToken)
 	if err != nil {
 		message, _ := fmt.Printf("Had an issue starting a discord session: %s", err)
 		panic(message)
 	}
 
-	authSvcName := configuration.Bot.AuthSrvNamespace + "." + configuration.ServiceNames.AuthSrv
-	roleMap := discord.NewRoleMap(configuration.Bot.DiscordServerId, chatClient)
+	roleMap := discord.NewRoleMap(config.Bot.DiscordServerId, chatClient)
 
 	err = roleMap.UpdateRoles()
 	if err != nil {
@@ -40,15 +40,15 @@ func initialize(configuration *config.Configuration) error {
 		panic(message)
 	}
 
-	clientFactory := clientFactory{name: authSvcName, client: service.Client()}
-	checker := background.NewChecker(configuration.Bot.DiscordServerId, chatClient, &clientFactory, roleMap, time.Minute*5)
+	clientFactory := clientFactory{name: config.LookupService("srv", "auth"), client: service.Client()}
+	checker := background.NewChecker(config.Bot.DiscordServerId, chatClient, &clientFactory, roleMap, time.Minute*5)
 
 	checker.Start()
 
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(
-			configuration.Bot.DiscordServerId,
-			configuration.Name,
+			config.Bot.DiscordServerId,
+			name,
 			&clientFactory,
 			chatClient,
 			roleMap,
