@@ -8,7 +8,6 @@ import (
 	"github.com/chremoas/services-common/config"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
-	"time"
 )
 
 var Version = "1.0.0"
