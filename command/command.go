@@ -45,7 +45,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 		}
 
 		if len(synced.Roles) == 0 {
-			rsp.Result = []byte("```Nothing to sync\n")
+			rsp.Result = []byte("```Nothing to sync```\n")
 			return nil
 		}
 
