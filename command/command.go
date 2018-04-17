@@ -1,7 +1,8 @@
 package command
 
 import (
-	"github.com/chremoas/auth-cmd/discord"
+	"bytes"
+	"fmt"
 	uauthsvc "github.com/chremoas/auth-srv/proto"
 	proto "github.com/chremoas/chremoas/proto"
 	"golang.org/x/net/context"
@@ -14,11 +15,8 @@ type ClientFactory interface {
 }
 
 type Command struct {
-	guildID string
 	name    string
 	factory ClientFactory
-	client  discord.Client
-	roleMap discord.RoleMap
 }
 
 // Help returns the command usage
@@ -40,15 +38,35 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 
 	client := c.factory.NewClient()
 
+	if req.Args[1] == "sync" {
+		synced, err := client.SyncToRoleService(ctx, &uauthsvc.NilRequest{})
+		if err != nil {
+			return err
+		}
+
+		if len(synced.Roles) == 0 {
+			rsp.Result = []byte("```Nothing to sync\n")
+			return nil
+		}
+
+		var buffer bytes.Buffer
+
+		buffer.WriteString("Synced:\n")
+		for s := range synced.Roles {
+			buffer.WriteString(fmt.Sprintf("\t%s: %s\n",
+				synced.Roles[s].Name,
+				synced.Roles[s].Description,
+			))
+		}
+
+		rsp.Result = []byte(fmt.Sprintf("```%s```\n", buffer.String()))
+		return nil
+	}
+
 	response, err := client.Confirm(ctx, &uauthsvc.AuthConfirmRequest{UserId: sender[1], AuthenticationCode: req.Args[1]})
 
 	if err != nil {
 		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I had an issue authing your request, please reauth or contact your administrator.")
-		return nil
-	}
-
-	if response.Roles == nil || len(response.Roles) == 0 {
-		rsp.Result = []byte("<@" + sender[1] + ">, :warning: **Unsure Response**: " + response.CharacterName + " was authed but has 0 roles assigned.")
 		return nil
 	}
 
@@ -57,28 +75,12 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 		return nil
 	}
 
-	roles := []string{}
-
-	for _, role := range response.Roles {
-		roleId := c.roleMap.GetRoleId(role)
-		if len(roleId) > 0 {
-			roles = append(roles, roleId)
-		}
-	}
-
-	err = c.client.UpdateMember(c.guildID, sender[1], roles)
-
-	if err != nil {
-		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I had an issue talking to the chat service, please try again later.")
-		return nil
-	}
-
 	rsp.Result = []byte("<@" + sender[1] + ">, :white_check_mark: **Success**: " + response.CharacterName + " has been successfully authed.")
 
 	return nil
 }
 
-func NewCommand(guildID, myName string, factory ClientFactory, client discord.Client, roleMap discord.RoleMap) *Command {
-	newCommand := Command{guildID: guildID, name: myName, factory: factory, client: client, roleMap: roleMap}
+func NewCommand(myName string, factory ClientFactory) *Command {
+	newCommand := Command{name: myName, factory: factory}
 	return &newCommand
 }
