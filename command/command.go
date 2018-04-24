@@ -76,6 +76,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	}
 
 	rsp.Result = []byte("<@" + sender[1] + ">, :white_check_mark: **Success**: " + response.CharacterName + " has been successfully authed.")
+	client.SyncToRoleService(ctx, &uauthsvc.NilRequest{})
 
 	return nil
 }
