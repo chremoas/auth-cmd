@@ -8,14 +8,25 @@ import (
 	"github.com/chremoas/services-common/config"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
+	"go.uber.org/zap"
 )
 
 var Version = "1.0.0"
 var service micro.Service
 var name = "auth"
+var logger *zap.Logger
 
 func main() {
 	service = config.NewService(Version, "cmd", name, initialize)
+	var err error
+
+	// TODO pick stuff up from the config
+	logger, err = zap.NewProduction()
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+	logger.Info("Initialized logger")
 
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
@@ -30,6 +41,7 @@ func initialize(config *config.Configuration) error {
 		command.NewCommand(
 			name,
 			&clientFactory,
+			logger,
 		),
 	)
 

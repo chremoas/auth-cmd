@@ -7,6 +7,7 @@ import (
 	proto "github.com/chremoas/chremoas/proto"
 	"golang.org/x/net/context"
 	"strings"
+	"go.uber.org/zap"
 )
 
 //TODO: Refactor this elsewhere... too tired right now and I want to start the checker tests.
@@ -19,6 +20,8 @@ type Command struct {
 	factory ClientFactory
 }
 
+var logger *zap.Logger
+
 // Help returns the command usage
 func (c *Command) Help(ctx context.Context, req *proto.HelpRequest, rsp *proto.HelpResponse) error {
 	// Usage should include the name of the command
@@ -29,6 +32,7 @@ func (c *Command) Help(ctx context.Context, req *proto.HelpRequest, rsp *proto.H
 
 // Exec executes the command
 func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.ExecResponse) error {
+	sugar := logger.Sugar()
 	sender := strings.Split(req.Sender, ":")
 
 	if len(req.Args) != 2 {
@@ -39,10 +43,12 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	client := c.factory.NewClient()
 
 	if req.Args[1] == "sync" {
+		sugar.Info("Performing Sync")
 		synced, err := client.SyncToRoleService(ctx, &uauthsvc.NilRequest{})
 		if err != nil {
 			return err
 		}
+		sugar.Info("Call to SyncToRolesService completed")
 
 		if len(synced.Roles) == 0 {
 			rsp.Result = []byte("```Nothing to sync```\n")
@@ -81,7 +87,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	return nil
 }
 
-func NewCommand(myName string, factory ClientFactory) *Command {
-	newCommand := Command{name: myName, factory: factory}
-	return &newCommand
+func NewCommand(myName string, factory ClientFactory, log *zap.Logger) *Command {
+	logger = log
+	return &Command{name: myName, factory: factory}
 }
