@@ -1,8 +1,6 @@
 package command
 
 import (
-	"bytes"
-	"fmt"
 	uauthsvc "github.com/chremoas/auth-srv/proto"
 	proto "github.com/chremoas/chremoas/proto"
 	"golang.org/x/net/context"
@@ -44,28 +42,12 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 
 	if req.Args[1] == "sync" {
 		sugar.Info("Performing Sync")
-		synced, err := client.SyncToRoleService(ctx, &uauthsvc.NilRequest{})
+		_, err := client.SyncToRoleService(ctx, &uauthsvc.SyncRequest{ChannelId: sender[0], UserId: sender[1]})
 		if err != nil {
 			return err
 		}
 		sugar.Info("Call to SyncToRolesService completed")
 
-		if len(synced.Roles) == 0 {
-			rsp.Result = []byte("```Nothing to sync```\n")
-			return nil
-		}
-
-		var buffer bytes.Buffer
-
-		buffer.WriteString("Synced:\n")
-		for s := range synced.Roles {
-			buffer.WriteString(fmt.Sprintf("\t%s: %s\n",
-				synced.Roles[s].Name,
-				synced.Roles[s].Description,
-			))
-		}
-
-		rsp.Result = []byte(fmt.Sprintf("```%s```\n", buffer.String()))
 		return nil
 	}
 
@@ -82,7 +64,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	}
 
 	rsp.Result = []byte("<@" + sender[1] + ">, :white_check_mark: **Success**: " + response.CharacterName + " has been successfully authed.")
-	client.SyncToRoleService(ctx, &uauthsvc.NilRequest{})
+	client.SyncToRoleService(ctx, &uauthsvc.SyncRequest{ChannelId: sender[0], UserId: sender[1]})
 
 	return nil
 }
