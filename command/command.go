@@ -64,7 +64,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	}
 
 	rsp.Result = []byte("<@" + sender[1] + ">, :white_check_mark: **Success**: " + response.CharacterName + " has been successfully authed.")
-	client.SyncToRoleService(ctx, &uauthsvc.SyncRequest{ChannelId: sender[0], UserId: sender[1]})
+	client.SyncToRoleService(ctx, &uauthsvc.SyncRequest{ChannelId: sender[0], UserId: sender[1], SendMessage: false})
 
 	return nil
 }
