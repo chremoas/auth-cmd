@@ -54,5 +54,5 @@ type clientFactory struct {
 }
 
 func (c clientFactory) NewClient() uauthsvc.UserAuthenticationService {
-	return uauthsvc.NewUserAuthenticationService(c.name, c.client)
+	return uauthsvc.UserAuthenticationServiceClient(c.name, c.client)
 }
