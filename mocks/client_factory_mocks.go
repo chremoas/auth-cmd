@@ -4,8 +4,7 @@
 package mocks
 
 import (
-	proto "github.com/chremoas/auth-srv/proto"
-	gomock "github.com/golang/mock/gomock"
+	"github.com/golang/mock/gomock"
 )
 
 // Mock of ClientFactory interface
@@ -29,11 +28,11 @@ func (_m *MockClientFactory) EXPECT() *_MockClientFactoryRecorder {
 	return _m.recorder
 }
 
-func (_m *MockClientFactory) NewClient() proto.UserAuthenticationClient {
-	ret := _m.ctrl.Call(_m, "NewClient")
-	ret0, _ := ret[0].(proto.UserAuthenticationClient)
-	return ret0
-}
+//func (_m *MockClientFactory) NewClient() proto.UserAuthenticationClient {
+//	ret := _m.ctrl.Call(_m, "NewClient")
+//	ret0, _ := ret[0].(proto.UserAuthenticationClient)
+//	return ret0
+//}
 
 func (_mr *_MockClientFactoryRecorder) NewClient() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "NewClient")
