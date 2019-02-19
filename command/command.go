@@ -41,7 +41,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	client := c.factory.NewClient()
 
 	if len(req.Args) == 1 || req.Args[1] == "help" {
-		rsp.Result = []byte("<@" + sender[1] + ">, :no_entry_sign: Please uses `!auth <auth_key_from_web>`")
+		rsp.Result = []byte("<@" + sender[1] + ">, :no_entry_sign: Please use `!auth <auth_key_from_web>`")
 		return nil
 	}
 
