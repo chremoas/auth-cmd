@@ -3,9 +3,9 @@ package command
 import (
 	uauthsvc "github.com/chremoas/auth-srv/proto"
 	proto "github.com/chremoas/chremoas/proto"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"strings"
-	"go.uber.org/zap"
 )
 
 //TODO: Refactor this elsewhere... too tired right now and I want to start the checker tests.
@@ -39,6 +39,11 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	}
 
 	client := c.factory.NewClient()
+
+	if len(req.Args) == 1 || req.Args[1] == "help" {
+		rsp.Result = []byte("<@" + sender[1] + ">, :no_entry_sign: Please uses `!auth <auth_key_from_web>`")
+		return nil
+	}
 
 	if req.Args[1] == "sync" {
 		sugar.Info("Performing Sync")
