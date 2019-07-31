@@ -2,3 +2,4 @@
 *.iml
 application.yaml
 auth-bot
+/vendor/
