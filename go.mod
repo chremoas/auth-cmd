@@ -5,8 +5,8 @@ go 1.12
 require (
 	github.com/bwmarrin/discordgo v0.19.0
 	github.com/chremoas/auth-srv v1.1.8
-	github.com/chremoas/chremoas v1.1.9
-	github.com/chremoas/services-common v1.1.6
+	github.com/chremoas/chremoas v1.2.0
+	github.com/chremoas/services-common v1.2.0
 	github.com/golang/mock v1.3.1
 	github.com/micro/go-micro v1.8.1
 	go.uber.org/zap v1.10.0
