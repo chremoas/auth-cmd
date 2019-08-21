@@ -2,5 +2,4 @@
 *.iml
 application.yaml
 auth-bot
-/vendor/
 /auth-cmd-linux-amd64
