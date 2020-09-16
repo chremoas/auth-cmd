@@ -45,7 +45,7 @@ fmt:
 	go fmt $$(go list ./... | grep -v /vendor/) ; \
 
 docker:
-	docker buildx build --build-arg VERSION=${VERSION} --build-arg COMMIT=${COMMIT} --build-arg BRANCH=${BRANCH} -t ${GITHUB_USERNAME}/${BINARY}:${VERSION} -t ${GITHUB_USERNAME}/${BINARY}:latest --push .
+	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --build-arg VERSION=${VERSION} --build-arg COMMIT=${COMMIT} --build-arg BRANCH=${BRANCH} -t ${GITHUB_USERNAME}/${BINARY}:${VERSION} -t ${GITHUB_USERNAME}/${BINARY}:latest --push .
 
 install-illumos: illumos
 	cp ${BINARY}-illumos-${GOARCH} /usr/local/bin/${BINARY}
