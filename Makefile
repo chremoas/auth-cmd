@@ -17,14 +17,13 @@ GITHUB_USERNAME=chremoas
 DEV_REGISTRY=docker.4amlunch.net
 
 # Setup the -ldflags option for go build here, interpolate the variable values
-LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Branch=${BRANCH}"
+LDFLAGS = -ldflags \"-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Branch=${BRANCH}\"
 
 # Build the project
-all: clean test vet linux docker
+all: clean vet linux docker
 
 linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-amd64 . ; \
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-arm64 . ; \
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-amd64 . ; \
 
 illumos:
 	CGO_ENABLED=0 GOOS=illumos GOARCH=${GOARCH} go build -mod=vendor ${LDFLAGS} -o ${BINARY}-illumos-${GOARCH} . ; \
@@ -45,30 +44,8 @@ vet:
 fmt:
 	go fmt $$(go list ./... | grep -v /vendor/) ; \
 
-docker: linux
-	docker build -t ${GITHUB_USERNAME}/${BINARY} .
-
-tag: tag-latest tag-version
-
-tag-version: docker
-	docker tag ${GITHUB_USERNAME}/${BINARY} ${GITHUB_USERNAME}/${BINARY}:${VERSION}
-
-tag-latest: docker
-	docker tag ${GITHUB_USERNAME}/${BINARY} ${GITHUB_USERNAME}/${BINARY}:latest
-
-tag-dev: docker
-	docker tag ${GITHUB_USERNAME}/${BINARY} ${DEV_REGISTRY}/${BINARY}:${VERSION}
-
-publish: publish-latest publish-version
-
-publish-version: tag
-	docker push ${GITHUB_USERNAME}/${BINARY}:${VERSION}
-
-publish-latest: tag
-	docker push ${GITHUB_USERNAME}/${BINARY}:latest
-
-publish-dev: tag-dev
-	docker push ${DEV_REGISTRY}/${BINARY}:${VERSION}
+docker:
+	docker buildx build --build-arg VERSION=${VERSION} --build-arg COMMIT=${COMMIT} --build-arg BRANCH=${BRANCH} -t ${GITHUB_USERNAME}/${BINARY}:${VERSION} -t ${GITHUB_USERNAME}/${BINARY}:latest --push .
 
 install-illumos: illumos
 	cp ${BINARY}-illumos-${GOARCH} /usr/local/bin/${BINARY}
@@ -79,4 +56,4 @@ clean:
 	-rm -f ${VET_REPORT}
 	-rm -f ${BINARY}-*
 
-.PHONY: linux illumos darwin windows test vet fmt docker tag tag-version tag-latest publish publish-version publish-latest clean
+.PHONY: linux illumos darwin windows test vet fmt docker clean
