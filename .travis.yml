@@ -1,9 +1,7 @@
 language: go
 sudo: false
 go:
-  - 1.13beta1
-script:
-  - make tag
+  - 1.14
 before_deploy:
   - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
   - export GIT_TAG=$(cat VERSION)
@@ -14,7 +12,7 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script: make publish
+  script: make docker
   on:
     tags: false
     branch: master
