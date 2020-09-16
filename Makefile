@@ -20,7 +20,7 @@ DEV_REGISTRY=docker.4amlunch.net
 LDFLAGS = -ldflags \"-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Branch=${BRANCH}\"
 
 # Build the project
-all: clean vet linux docker
+all: clean docker
 
 linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-amd64 . ; \
@@ -56,4 +56,4 @@ clean:
 	-rm -f ${VET_REPORT}
 	-rm -f ${BINARY}-*
 
-.PHONY: linux illumos darwin windows test vet fmt docker clean
+.PHONY: linux illumos darwin windows test fmt docker clean
