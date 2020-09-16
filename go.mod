@@ -14,3 +14,4 @@ require (
 )
 
 replace github.com/chremoas/auth-cmd => ../auth-cmd
+replace github.com/hashicorp/consul => github.com/hashicorp/consul v1.5.1

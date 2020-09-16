@@ -8,14 +8,18 @@ github.com/armon/consul-api
 # github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878
 github.com/armon/go-metrics
 # github.com/bwmarrin/discordgo v0.19.0
+## explicit
 github.com/bwmarrin/discordgo
 # github.com/cheekybits/genny v1.0.0
 github.com/cheekybits/genny/generic
-# github.com/chremoas/auth-srv v1.2.1
+# github.com/chremoas/auth-srv v1.2.5
+## explicit
 github.com/chremoas/auth-srv/proto
-# github.com/chremoas/chremoas v1.2.1
+# github.com/chremoas/chremoas v1.2.5
+## explicit
 github.com/chremoas/chremoas/proto
-# github.com/chremoas/services-common v1.2.4
+# github.com/chremoas/services-common v1.2.5
+## explicit
 github.com/chremoas/services-common/config
 # github.com/coreos/etcd v3.3.13+incompatible
 github.com/coreos/etcd/client
@@ -31,6 +35,7 @@ github.com/fsnotify/fsnotify
 github.com/go-log/log
 github.com/go-log/log/log
 # github.com/golang/mock v1.3.1
+## explicit
 github.com/golang/mock/gomock
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/jsonpb
@@ -103,6 +108,7 @@ github.com/marten-seemann/qtls
 # github.com/micro/cli v0.2.0
 github.com/micro/cli
 # github.com/micro/go-micro v1.9.1
+## explicit
 github.com/micro/go-micro
 github.com/micro/go-micro/broker
 github.com/micro/go-micro/broker/http
@@ -208,6 +214,7 @@ go.uber.org/atomic
 # go.uber.org/multierr v1.1.0
 go.uber.org/multierr
 # go.uber.org/zap v1.10.0
+## explicit
 go.uber.org/zap
 go.uber.org/zap/buffer
 go.uber.org/zap/internal/bufferpool
@@ -235,6 +242,7 @@ golang.org/x/crypto/openpgp/s2k
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/salsa20/salsa
 # golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+## explicit
 golang.org/x/net/bpf
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -299,3 +307,5 @@ google.golang.org/grpc/tap
 gopkg.in/alecthomas/kingpin.v2
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
+# github.com/chremoas/auth-cmd => ../auth-cmd
+# github.com/hashicorp/consul => github.com/hashicorp/consul v1.5.1
