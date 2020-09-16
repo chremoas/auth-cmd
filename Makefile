@@ -23,7 +23,8 @@ LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X ma
 all: clean test vet linux docker
 
 linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-${GOARCH} . ; \
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-amd64 . ; \
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -mod=vendor ${LDFLAGS} -o ${BINARY}-linux-arm64 . ; \
 
 illumos:
 	CGO_ENABLED=0 GOOS=illumos GOARCH=${GOARCH} go build -mod=vendor ${LDFLAGS} -o ${BINARY}-illumos-${GOARCH} . ; \

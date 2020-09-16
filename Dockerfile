@@ -1,7 +1,10 @@
-FROM scratch
+FROM --platform=$BUILDPLATFORM scratch AS build
 MAINTAINER Brian Hechinger <wonko@4amlunch.net>
+ARG BUILDOS
+ARG BUILDARCH
 
-ADD auth-cmd-linux-amd64 auth-cmd
+FROM build
+ADD auth-cmd-${BUILDOS}-${BUILDARCH} auth-cmd
 VOLUME /etc/chremoas
 
 ENTRYPOINT ["/auth-cmd", "--configuration_file", "/etc/chremoas/chremoas.yaml"]
