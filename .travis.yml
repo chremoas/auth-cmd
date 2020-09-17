@@ -11,7 +11,6 @@ before_install:
 install:
   - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - docker buildx create --name xbuilder --use
-before_deploy:
   - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
   - export GIT_TAG=$(cat VERSION)
   - git config --global user.email "builds@travis-ci.com"
