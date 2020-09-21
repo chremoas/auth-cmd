@@ -17,7 +17,7 @@ GITHUB_USERNAME=chremoas
 DEV_REGISTRY=docker.4amlunch.net
 
 # Setup the -ldflags option for go build here, interpolate the variable values
-LDFLAGS = -ldflags \"-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Branch=${BRANCH}\"
+LDFLAGS = -ldflags "-w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Branch=${BRANCH}"
 
 # Build the project
 all: clean docker
@@ -45,7 +45,7 @@ fmt:
 	go fmt $$(go list ./... | grep -v /vendor/) ; \
 
 docker:
-	docker buildx build --build-arg VERSION=${VERSION} --build-arg COMMIT=${COMMIT} --build-arg BRANCH=${BRANCH} --platform=linux/amd64,linux/arm64 -t ${GITHUB_USERNAME}/${BINARY}:${VERSION} -t ${GITHUB_USERNAME}/${BINARY}:latest --push .
+	docker buildx build --build-arg VERSION=${VERSION} --build-arg COMMIT=${COMMIT} --build-arg BRANCH=${BRANCH} --build-arg BINARY=${BINARY}--platform=linux/amd64,linux/arm64 -t ${GITHUB_USERNAME}/${BINARY}:${VERSION} -t ${GITHUB_USERNAME}/${BINARY}:latest --push .
 
 install-illumos: illumos
 	cp ${BINARY}-illumos-${GOARCH} /usr/local/bin/${BINARY}
