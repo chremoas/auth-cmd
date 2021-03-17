@@ -6,6 +6,7 @@ import (
 	uauthsvc "github.com/chremoas/auth-srv/proto"
 	proto "github.com/chremoas/chremoas/proto"
 	"github.com/chremoas/services-common/config"
+	chremoasPrometheus "github.com/chremoas/services-common/prometheus"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/client"
 	"go.uber.org/zap"
@@ -28,6 +29,8 @@ func main() {
 	defer logger.Sync()
 	logger.Info("Initialized logger")
 
+	go chremoasPrometheus.PrometheusExporter(logger)
+
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
 	}
@@ -35,7 +38,6 @@ func main() {
 
 func initialize(config *config.Configuration) error {
 	clientFactory := clientFactory{name: config.LookupService("srv", "auth"), client: service.Client()}
-
 
 	proto.RegisterCommandHandler(service.Server(),
 		command.NewCommand(

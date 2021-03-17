@@ -34,7 +34,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	sender := strings.Split(req.Sender, ":")
 
 	if len(req.Args) != 2 {
-		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I did not understand your command.")
+		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I did not understand your command. Please look in #welcome for instructions.")
 		return nil
 	}
 
@@ -59,7 +59,7 @@ func (c *Command) Exec(ctx context.Context, req *proto.ExecRequest, rsp *proto.E
 	response, err := client.Confirm(ctx, &uauthsvc.AuthConfirmRequest{UserId: sender[1], AuthenticationCode: req.Args[1]})
 
 	if err != nil {
-		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I had an issue authing your request, please reauth or contact your administrator.")
+		rsp.Result = []byte("<@" + sender[1] + ">, :octagonal_sign: I had an issue authing your request, please reauth or contact your administrator. " + err.Error())
 		return nil
 	}
 
